@@ -1,5 +1,3 @@
-<img src="https://raw.githubusercontent.com/cloudsforge-online/.github/main/profile/assets/avatar.png" alt="" width="96" align="right" />
-
 # CloudsForge
 
 **One crypto world. Mine it, hold it, forge it, trade it, sell it, play in it,
