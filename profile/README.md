@@ -65,6 +65,100 @@ strategy, and a build ledger that records what is actually true rather than what
 was planned — including the defects found on the way and the ones deliberately
 left open.
 
+## Every repository, and what it owns
+
+One repository per deployable. Each service owns exactly one database and reads no other — the
+answer to needing another service's data is an HTTP call typed by a published contract, never a
+second connection string, and CI greps for that.
+
+### The products people use
+
+| Repository | Scope |
+| --- | --- |
+| [`hearth`](https://github.com/cloudsforge-online/hearth) | The chain itself — Homefire PoW, UTXO + Ed25519, node, miner, EVM layer and contracts. **Public**, and takes outside contributors. |
+| `micro-mint` | Forge Create: token orders, the deployment lifecycle, the token registry, contract templates. A deploy leaves the request; nothing is held for three minutes. |
+| `micro-trade` | Forge Trade: the strategy catalogue, backtests, bots, fills and fee settlement. A backtest replays byte-identically from a seed. |
+| `micro-market` | Forge Market: listings, offers, bids, auctions, orders, escrow references, collections, moderation and disputes. Escrow is a ledger reservation, never a balance held here. |
+| `micro-worlds` | Forge Worlds: the title registry, shared player profile, inventory, achievements, seasons and the entitlement bridge. |
+| `micro-nda` | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
+| `micro-emberkin` | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
+| `micro-foresight` | Forge Foresight: markets, the AI idea pipeline with cited provenance, on-chain settlement and disputes. The service holds no stake. |
+| `micro-community` | Communities, membership, proposals, votes, delegations, timelocks and treasury executions. |
+
+### The platform beneath them
+
+| Repository | Scope |
+| --- | --- |
+| `micro-identity` | Accounts, credentials, MFA, sessions, devices, refresh families, signing keys and JWKS. The root of trust. |
+| `micro-ledger` | Double-entry accounting: chart of accounts, journal entries, postings, balances, reservations, reconciliation. Its database refuses an unbalanced journal. |
+| `micro-custody` | HD seeds, key generation, the encryption envelope, signing policy and key lifecycle. It has no reveal endpoint, by deletion rather than by guard. |
+| `micro-wallet` | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. |
+| `micro-settlement` | Treasuries, sweeps, outbound transaction building, broadcast and confirmation tracking. |
+| `micro-indexer` | Blocks, transactions, receipts, logs, address activity, balances, reorgs and provider health. Reorg safety is the whole job. |
+| `micro-pricing` | Market sources, the median oracle, administered prices, spread policy and rate history. A rate that cannot be quoted is an error, never a default. |
+| `micro-billing` | Products, prices, entitlements, subscriptions, usage, invoices, refunds and creator payouts. |
+| `micro-policy` | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals and freezes. Fail-closed and fail-open are separated deliberately. |
+| `micro-activity` | The canonical activity record and the unified feed. |
+| `micro-notify` | Preferences, templates, notifications, deliveries, digests and developer webhooks. A critical notification ignores preferences. |
+| `micro-hub-api` | The Forge Hub BFF: dashboard aggregation, portfolio composition, search and suggested actions. |
+| `micro-devplatform` | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash. |
+| `micro-admin-api` | The operator BFF: cross-service actions, approval queues and a tamper-evident audit mirror. |
+| `micro-analytics` | A pseudonymised product event store, funnels, cohorts and retention. A raw subject cannot be stored, even with the service bypassed. |
+
+### The things people look at
+
+| Repository | Scope |
+| --- | --- |
+| `micro-site` | The marketing site. No number on it that is not checkable against something real. |
+| `micro-hub-web` | Forge Hub: dashboard, portfolio, wallet, activity, security, entitlements. |
+| `micro-market-web` | Forge Market's storefront, listings, orders and disputes. |
+| `micro-foresight-web` | Forge Foresight's public markets. It recomputes the question hash in the browser. |
+| `micro-foresight-admin-web` | The Foresight operator console, its own bundle by design. |
+| `micro-emberkin-web` | The Emberkin game client. It deletes the battle engine it inherited: a client that can resolve a battle can lie about one. |
+| `micro-status-web` | The public status page. Green-on-unknown is structurally unreachable. |
+
+### Operations
+
+| Repository | Scope |
+| --- | --- |
+| `micro-beacon` | Synthetic probes, journeys, incidents, SLOs and error budgets. **The release gate** — an unknown refuses. |
+| `micro-lantern` | Log triage: OTLP ingest, error grouping, browser errors and trace lookup. Credentials are scrubbed before anything is stored. |
+| `micro-faucet` | The testnet EMBER faucet. It refuses to start against a chain that is not the testnet. |
+| `micro-deploy` | The telemetry stack, the gateway configuration and the public API route map. |
+
+### Libraries and machinery
+
+| Repository | Scope |
+| --- | --- |
+| `micro-runtime` | `@cloudsforge/lifecycle`, `-http`, `-jobs`, `-db`, `-auth`, `-telemetry`. The six copies of the same file that used to drift. |
+| `micro-contracts` | The typed contracts services agree on, split by bounded context. `-chain` is exact-pinned, because a skew credits money at the wrong depth. |
+| `micro-ui` | The design system: tokens, chrome, the product accents and the validated chart palette. |
+| `micro-sdk` | The public developer SDK and CLI. Zero runtime dependencies; every route cites the line that serves it. |
+| `micro-org` | The reusable CI every repository calls, the contract-compatibility checker, `cfctl` and the README template. |
+| `micro-service-template` | A working service skeleton with every runtime library wired. |
+| `micro-web-template` | The same for a frontend, including the guards a frontend keeps forgetting. |
+
+### Assets and record
+
+| Repository | Scope |
+| --- | --- |
+| `micro-brand` | 93 generated brand assets with per-asset provenance, and the numeric ground normaliser that makes them one family. |
+| `micro-emberkin-assets` | 83 generated assets for Emberkin, prompted from the game's own visual spec. |
+| `micro-docs` | Twenty documents: the architecture and security decisions, the domain model, the testing strategy, and a build ledger recording what is actually true. |
+| `micro-conformance` | A recorded corpus of real interactions — the behavioural baseline a successor has to match. |
+
+### Still in build
+
+`micro-admin-web`, `micro-mint-web`, `micro-trade-web`, `micro-worlds-web`, `micro-explorer-web`,
+`micro-network-site`, `micro-devportal-web`.
+
+### Predecessors
+
+`platform`, `forge-pay`, `forge-keyvault`, `forge-mint`, `crucible`, `ninety-days-after`,
+`shared-libs`, `asset-forge`, `stack`. **Nothing was deleted, archived or renamed.** They remain
+deployable and are the rollback target; the estate above was built beside them.
+
+
 ## Status
 
 **Pre-launch, and honest about it.** The services are built and tested; nothing
