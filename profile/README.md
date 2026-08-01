@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/cloudsforge-online/.github/main/profile/assets/avatar.png" alt="" width="96" align="right" />
+
 # CloudsForge
 
 **One crypto world. Mine it, trade it, make it, sell it, play in it, and stake on what happens next.**
@@ -9,12 +11,17 @@ the coin you mine on your own laptop is the same coin that funds the rest.
 ## The loop
 
 Mine EMBER at home → deposit it → convert it to Shards → spend it across
-everything we make.
+everything we make → and what you earn back lands in the same wallet.
 
 Hearth's proof-of-work is CPU-only and non-outsourceable. No farms, no pools, no
-rigs — the work has to happen on the machine that owns the reward. What you mine
-is what funds a trading bot, a token launch, a listing, a season in a world that
-ends, or a position on a market that settles on chain.
+rigs — the work has to happen on the machine that owns the reward.
+
+That is the whole point of one account. The coin you mined funds a backtest, and
+the bot that survives it is charged from the same balance. A token you launch is
+listed in the same marketplace, and the royalty comes back to the same wallet. A
+season in a world that ends is bought with the same Shards as a position on a
+market that settles on chain. **Forge Hub** is where all of it is visible at
+once — not a seventh product, but the container the other six sit inside.
 
 ## The six
 
@@ -71,91 +78,108 @@ One repository per deployable. Each service owns exactly one database and reads 
 answer to needing another service's data is an HTTP call typed by a published contract, never a
 second connection string, and CI greps for that.
 
-### The products people use
+> **Every `micro-` link below is internal.** Those repositories are private, so they open for
+> members of this organisation and 404 for everybody else — the 404 means "not yours to read", not
+> "not there". The public ones are [`hearth`](https://github.com/cloudsforge-online/hearth) and the
+> predecessors at the bottom.
+
+### The six products
 
 | Repository | Scope |
 | --- | --- |
-| [`hearth`](https://github.com/cloudsforge-online/hearth) | The chain itself — Homefire PoW, UTXO + Ed25519, node, miner, EVM layer and contracts. **Public**, and takes outside contributors. |
-| `micro-mint` | Forge Create: token orders, the deployment lifecycle, the token registry, contract templates. A deploy leaves the request; nothing is held for three minutes. |
-| `micro-trade` | Forge Trade: the strategy catalogue, backtests, bots, fills and fee settlement. A backtest replays byte-identically from a seed. |
-| `micro-market` | Forge Market: listings, offers, bids, auctions, orders, escrow references, collections, moderation and disputes. Escrow is a ledger reservation, never a balance held here. |
-| `micro-worlds` | Forge Worlds: the title registry, shared player profile, inventory, achievements, seasons and the entitlement bridge. |
-| `micro-nda` | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
-| `micro-emberkin` | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
-| `micro-foresight` | Forge Foresight: markets, the AI idea pipeline with cited provenance, on-chain settlement and disputes. The service holds no stake. |
-| `micro-community` | Communities, membership, proposals, votes, delegations, timelocks and treasury executions. |
+| [`hearth`](https://github.com/cloudsforge-online/hearth) | **Forge Network.** The chain itself — Homefire PoW, UTXO + Ed25519, node, miner, EVM layer and contracts. **Public**, and takes outside contributors. |
+| [`micro-trade`](https://github.com/cloudsforge-online/micro-trade) | **Forge Trade.** The strategy catalogue, backtests, bots, fills and fee settlement. A backtest replays byte-identically from a seed. |
+| [`micro-mint`](https://github.com/cloudsforge-online/micro-mint) | **Forge Create.** Token orders, the deployment lifecycle, the token registry and contract templates. A deploy leaves the request; nothing is held for three minutes. |
+| [`micro-market`](https://github.com/cloudsforge-online/micro-market) | **Forge Market.** Listings, offers, bids, auctions, orders, escrow references, collections, moderation and disputes. Escrow is a ledger reservation, never a balance held here. |
+| [`micro-worlds`](https://github.com/cloudsforge-online/micro-worlds) | **Forge Worlds.** The title registry, shared player profile, inventory, achievements, seasons and the entitlement bridge — the platform the games sit on, not a game. |
+| [`micro-foresight`](https://github.com/cloudsforge-online/micro-foresight) | **Forge Foresight.** Markets, the AI idea pipeline with cited provenance, on-chain settlement and disputes. The service holds no stake. |
+
+### The titles inside Forge Worlds
+
+A title is not a product. It registers with [`micro-worlds`](https://github.com/cloudsforge-online/micro-worlds), shares one player profile, and sells
+nothing but cosmetics and seasons.
+
+| Repository | Scope |
+| --- | --- |
+| [`micro-nda`](https://github.com/cloudsforge-online/micro-nda) | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
+| [`micro-emberkin`](https://github.com/cloudsforge-online/micro-emberkin) | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
 
 ### The platform beneath them
 
 | Repository | Scope |
 | --- | --- |
-| `micro-identity` | Accounts, credentials, MFA, sessions, devices, refresh families, signing keys and JWKS. The root of trust. |
-| `micro-ledger` | Double-entry accounting: chart of accounts, journal entries, postings, balances, reservations, reconciliation. Its database refuses an unbalanced journal. |
-| `micro-custody` | HD seeds, key generation, the encryption envelope, signing policy and key lifecycle. It has no reveal endpoint, by deletion rather than by guard. |
-| `micro-wallet` | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. |
-| `micro-settlement` | Treasuries, sweeps, outbound transaction building, broadcast and confirmation tracking. |
-| `micro-indexer` | Blocks, transactions, receipts, logs, address activity, balances, reorgs and provider health. Reorg safety is the whole job. |
-| `micro-pricing` | Market sources, the median oracle, administered prices, spread policy and rate history. A rate that cannot be quoted is an error, never a default. |
-| `micro-billing` | Products, prices, entitlements, subscriptions, usage, invoices, refunds and creator payouts. |
-| `micro-policy` | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals and freezes. Fail-closed and fail-open are separated deliberately. |
-| `micro-activity` | The canonical activity record and the unified feed. |
-| `micro-notify` | Preferences, templates, notifications, deliveries, digests and developer webhooks. A critical notification ignores preferences. |
-| `micro-hub-api` | The Forge Hub BFF: dashboard aggregation, portfolio composition, search and suggested actions. |
-| `micro-devplatform` | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash. |
-| `micro-admin-api` | The operator BFF: cross-service actions, approval queues and a tamper-evident audit mirror. |
-| `micro-analytics` | A pseudonymised product event store, funnels, cohorts and retention. A raw subject cannot be stored, even with the service bypassed. |
+| [`micro-identity`](https://github.com/cloudsforge-online/micro-identity) | Accounts, credentials, MFA, sessions, devices, refresh families, signing keys and JWKS. The root of trust. |
+| [`micro-ledger`](https://github.com/cloudsforge-online/micro-ledger) | Double-entry accounting: chart of accounts, journal entries, postings, balances, reservations, reconciliation. Its database refuses an unbalanced journal. |
+| [`micro-custody`](https://github.com/cloudsforge-online/micro-custody) | HD seeds, key generation, the encryption envelope, signing policy and key lifecycle. It has no reveal endpoint, by deletion rather than by guard. |
+| [`micro-wallet`](https://github.com/cloudsforge-online/micro-wallet) | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. |
+| [`micro-settlement`](https://github.com/cloudsforge-online/micro-settlement) | Treasuries, sweeps, outbound transaction building, broadcast and confirmation tracking. |
+| [`micro-indexer`](https://github.com/cloudsforge-online/micro-indexer) | Blocks, transactions, receipts, logs, address activity, balances, reorgs and provider health. Reorg safety is the whole job. |
+| [`micro-pricing`](https://github.com/cloudsforge-online/micro-pricing) | Market sources, the median oracle, administered prices, spread policy and rate history. A rate that cannot be quoted is an error, never a default. |
+| [`micro-billing`](https://github.com/cloudsforge-online/micro-billing) | Products, prices, entitlements, subscriptions, usage, invoices, refunds and creator payouts. |
+| [`micro-policy`](https://github.com/cloudsforge-online/micro-policy) | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals and freezes. Fail-closed and fail-open are separated deliberately. |
+| [`micro-activity`](https://github.com/cloudsforge-online/micro-activity) | The canonical activity record and the unified feed. |
+| [`micro-notify`](https://github.com/cloudsforge-online/micro-notify) | Preferences, templates, notifications, deliveries, digests and developer webhooks. A critical notification ignores preferences. |
+| [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | **Forge Hub**'s BFF: dashboard aggregation, portfolio composition, unified search and suggested actions. Hub is the container the six products sit inside, not a seventh product. |
+| [`micro-community`](https://github.com/cloudsforge-online/micro-community) | Communities, membership, proposals, votes, delegations, timelocks and treasury executions — governance across products rather than a product of its own. A treasury is a ledger account. |
+| [`micro-devplatform`](https://github.com/cloudsforge-online/micro-devplatform) | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash. |
+| [`micro-admin-api`](https://github.com/cloudsforge-online/micro-admin-api) | The operator BFF: cross-service actions, approval queues and a tamper-evident audit mirror. |
+| [`micro-studio`](https://github.com/cloudsforge-online/micro-studio) | Asset generation as a service: brand kits, asset specs, leased generation jobs and assets whose provenance is complete. Spend is capped by a conditional UPDATE before the model call, not by a prompt. |
+| [`micro-analytics`](https://github.com/cloudsforge-online/micro-analytics) | A pseudonymised product event store, funnels, cohorts and retention. A raw subject cannot be stored, even with the service bypassed. |
 
 ### The things people look at
 
 | Repository | Scope |
 | --- | --- |
-| `micro-site` | The marketing site. No number on it that is not checkable against something real. |
-| `micro-hub-web` | Forge Hub: dashboard, portfolio, wallet, activity, security, entitlements. |
-| `micro-market-web` | Forge Market's storefront, listings, orders and disputes. |
-| `micro-foresight-web` | Forge Foresight's public markets. It recomputes the question hash in the browser. |
-| `micro-foresight-admin-web` | The Foresight operator console, its own bundle by design. |
-| `micro-emberkin-web` | The Emberkin game client. It deletes the battle engine it inherited: a client that can resolve a battle can lie about one. |
-| `micro-status-web` | The public status page. Green-on-unknown is structurally unreachable. |
+| [`micro-site`](https://github.com/cloudsforge-online/micro-site) | The marketing site. No number on it that is not checkable against something real. |
+| [`micro-hub-web`](https://github.com/cloudsforge-online/micro-hub-web) | Forge Hub: dashboard, portfolio, wallet, activity, security, entitlements. |
+| [`micro-market-web`](https://github.com/cloudsforge-online/micro-market-web) | Forge Market's storefront, listings, orders and disputes. |
+| [`micro-foresight-web`](https://github.com/cloudsforge-online/micro-foresight-web) | Forge Foresight's public markets. It recomputes the question hash in the browser. |
+| [`micro-foresight-admin-web`](https://github.com/cloudsforge-online/micro-foresight-admin-web) | The Foresight operator console, its own bundle by design. |
+| [`micro-emberkin-web`](https://github.com/cloudsforge-online/micro-emberkin-web) | The Emberkin game client. It deletes the battle engine it inherited: a client that can resolve a battle can lie about one. |
+| [`micro-status-web`](https://github.com/cloudsforge-online/micro-status-web) | The public status page. Green-on-unknown is structurally unreachable. |
+| [`micro-admin-web`](https://github.com/cloudsforge-online/micro-admin-web) | The operator console: approvals, the action catalogue, the audit log and its chain verification, flags and broadcasts. It never calls the audit-write route — a browser holds neither the signing secret nor the scope. |
 
 ### Operations
 
 | Repository | Scope |
 | --- | --- |
-| `micro-beacon` | Synthetic probes, journeys, incidents, SLOs and error budgets. **The release gate** — an unknown refuses. |
-| `micro-lantern` | Log triage: OTLP ingest, error grouping, browser errors and trace lookup. Credentials are scrubbed before anything is stored. |
-| `micro-faucet` | The testnet EMBER faucet. It refuses to start against a chain that is not the testnet. |
-| `micro-deploy` | The telemetry stack, the gateway configuration and the public API route map. |
+| [`micro-beacon`](https://github.com/cloudsforge-online/micro-beacon) | Synthetic probes, journeys, incidents, SLOs and error budgets. **The release gate** — an unknown refuses. |
+| [`micro-lantern`](https://github.com/cloudsforge-online/micro-lantern) | Log triage: OTLP ingest, error grouping, browser errors and trace lookup. Credentials are scrubbed before anything is stored. |
+| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The testnet EMBER faucet. It refuses to start against a chain that is not the testnet. |
+| [`micro-deploy`](https://github.com/cloudsforge-online/micro-deploy) | The telemetry stack, the gateway configuration and the public API route map. |
 
 ### Libraries and machinery
 
 | Repository | Scope |
 | --- | --- |
-| `micro-runtime` | `@cloudsforge/lifecycle`, `-http`, `-jobs`, `-db`, `-auth`, `-telemetry`. The six copies of the same file that used to drift. |
-| `micro-contracts` | The typed contracts services agree on, split by bounded context. `-chain` is exact-pinned, because a skew credits money at the wrong depth. |
-| `micro-ui` | The design system: tokens, chrome, the product accents and the validated chart palette. |
-| `micro-sdk` | The public developer SDK and CLI. Zero runtime dependencies; every route cites the line that serves it. |
-| `micro-org` | The reusable CI every repository calls, the contract-compatibility checker, `cfctl` and the README template. |
-| `micro-service-template` | A working service skeleton with every runtime library wired. |
-| `micro-web-template` | The same for a frontend, including the guards a frontend keeps forgetting. |
+| [`micro-runtime`](https://github.com/cloudsforge-online/micro-runtime) | `@cloudsforge/lifecycle`, `-http`, `-jobs`, `-db`, `-auth`, `-telemetry`. The six copies of the same file that used to drift. |
+| [`micro-contracts`](https://github.com/cloudsforge-online/micro-contracts) | The typed contracts services agree on, split by bounded context. `-chain` is exact-pinned, because a skew credits money at the wrong depth. |
+| [`micro-ui`](https://github.com/cloudsforge-online/micro-ui) | The design system: tokens, chrome, the product accents and the validated chart palette. |
+| [`micro-sdk`](https://github.com/cloudsforge-online/micro-sdk) | The public developer SDK and CLI. Zero runtime dependencies; every route cites the line that serves it. |
+| [`micro-org`](https://github.com/cloudsforge-online/micro-org) | The reusable CI every repository calls, the contract-compatibility checker, `cfctl` and the README template. |
+| [`micro-service-template`](https://github.com/cloudsforge-online/micro-service-template) | A working service skeleton with every runtime library wired. |
+| [`micro-web-template`](https://github.com/cloudsforge-online/micro-web-template) | The same for a frontend, including the guards a frontend keeps forgetting. |
 
 ### Assets and record
 
 | Repository | Scope |
 | --- | --- |
-| `micro-brand` | 93 generated brand assets with per-asset provenance, and the numeric ground normaliser that makes them one family. |
-| `micro-emberkin-assets` | 83 generated assets for Emberkin, prompted from the game's own visual spec. |
-| `micro-docs` | Twenty documents: the architecture and security decisions, the domain model, the testing strategy, and a build ledger recording what is actually true. |
-| `micro-conformance` | A recorded corpus of real interactions — the behavioural baseline a successor has to match. |
+| [`micro-brand`](https://github.com/cloudsforge-online/micro-brand) | 93 generated brand assets with per-asset provenance, and the numeric ground normaliser that makes them one family. |
+| [`micro-emberkin-assets`](https://github.com/cloudsforge-online/micro-emberkin-assets) | 83 generated assets for Emberkin, prompted from the game's own visual spec. |
+| [`micro-docs`](https://github.com/cloudsforge-online/micro-docs) | Twenty documents: the architecture and security decisions, the domain model, the testing strategy, and a build ledger recording what is actually true. |
+| [`micro-conformance`](https://github.com/cloudsforge-online/micro-conformance) | A recorded corpus of real interactions — the behavioural baseline a successor has to match. |
 
 ### Still in build
 
-`micro-admin-web`, `micro-mint-web`, `micro-trade-web`, `micro-worlds-web`, `micro-explorer-web`,
+These do not exist yet — the links above are to repositories that do.
+
+`micro-mint-web`, `micro-trade-web`, `micro-worlds-web`, `micro-explorer-web`,
 `micro-network-site`, `micro-devportal-web`.
 
 ### Predecessors
 
-`platform`, `forge-pay`, `forge-keyvault`, `forge-mint`, `crucible`, `ninety-days-after`,
-`shared-libs`, `asset-forge`, `stack`. **Nothing was deleted, archived or renamed.** They remain
+[`platform`](https://github.com/cloudsforge-online/platform), [`forge-pay`](https://github.com/cloudsforge-online/forge-pay), [`forge-keyvault`](https://github.com/cloudsforge-online/forge-keyvault), [`forge-mint`](https://github.com/cloudsforge-online/forge-mint), [`crucible`](https://github.com/cloudsforge-online/crucible), [`ninety-days-after`](https://github.com/cloudsforge-online/ninety-days-after),
+[`shared-libs`](https://github.com/cloudsforge-online/shared-libs), [`asset-forge`](https://github.com/cloudsforge-online/asset-forge), [`stack`](https://github.com/cloudsforge-online/stack). **Nothing was deleted, archived or renamed.** They remain
 deployable and are the rollback target; the estate above was built beside them.
 
 
@@ -202,9 +226,16 @@ is a defect.
 
 ## Status
 
-**Pre-launch, and honest about it.** Forty-six repositories are built, tested and
-green in CI — around 6,700 tests, every service suite running against a real
-Postgres. Hearth runs on a testnet.
+**Pre-launch, and honest about it.** Forty-eight repositories are built and
+tested — 383 test files, every service suite running against a real Postgres and
+failing the build if it skips them. Hearth runs on a testnet.
+
+Forty-seven are green in CI. `micro-sdk` is red: a check that compares the
+OpenAPI description against the gateway's route map reads that map out of
+`micro-deploy`, and its workflow does not check that repository out as a sibling.
+The check is right and the workflow is wrong; it is being fixed rather than
+weakened. **Red runs are never deleted here** — the history of what failed is the
+only evidence that a suite ever had teeth.
 
 **Nothing is serving the public yet, and almost nothing is deployed.** Two
 services have been run together against a real database to prove the seams; the
