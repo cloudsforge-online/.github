@@ -14,7 +14,7 @@ shared across all of them.
 for real products is the thing no one else can tell.
 
 ```
-   mine EMBER on your own CPU            Hearth — Homefire PoW, no farms, no pools
+   mine EMBER on your own CPU            Hearth — Homefire PoW, CPU-mined, ASIC-resistant
               │
               ▼
    deposit into your wallet              custody mints the key, the indexer confirms it
@@ -48,7 +48,7 @@ chooses; it is something they are given.
 
 | Verb | Surface | What it is |
 | --- | --- | --- |
-| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | The EMBER chain: node, mining, explorer, faucet, RPC and SDK. CPU-mined and ASIC-resistant — Homefire PoW, UTXO + Ed25519, 15-second blocks, no premine. |
+| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | The EMBER chain: node, mining, explorer, faucet, RPC and SDK. Homefire PoW, CPU-mined, 15-second blocks, no premine. Consensus on the **account model** is merged and the original UTXO chain is being retired. |
 | **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Brand generation, token deployment, project pages, the launch flow. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
 | **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Backtesting, the strategy catalogue, paper and live bots, performance reporting. Fees and slippage are charged, because a strategy that only works for free does not work. Not an exchange. |
 | **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Discovery, listings, auctions, offers, escrow, creator and project profiles. The escrow is a reservation in the ledger rather than a balance we hold. |
@@ -190,6 +190,12 @@ Never a product, and never in a product grid as a peer.
 | [`micro-emberkin-web`](https://github.com/cloudsforge-online/micro-emberkin-web) | The Emberkin game client. It deletes the battle engine it inherited: a client that can resolve a battle can lie about one. |
 | [`micro-status-web`](https://github.com/cloudsforge-online/micro-status-web) | The public status page. Green-on-unknown is structurally unreachable. |
 | [`micro-admin-web`](https://github.com/cloudsforge-online/micro-admin-web) | The operator console: approvals, the action catalogue, the audit log and its chain verification, flags and broadcasts. It never calls the audit-write route — a browser holds neither the signing secret nor the scope. |
+| [`micro-mint-web`](https://github.com/cloudsforge-online/micro-mint-web) | Forge Create's console: the catalogue, token orders, payment and the deploy lifecycle. Deploy answers 202 and reaches no chain, so nothing renders "deployed" from a mutation result. |
+| [`micro-trade-web`](https://github.com/cloudsforge-online/micro-trade-web) | Forge Trade: strategies, backtests, bots, fills and settlements. Draws the equity curve against buy-and-hold, because a strategy curve with nothing to compare it to is a number with no scale. |
+| [`micro-worlds-web`](https://github.com/cloudsforge-online/micro-worlds-web) | Forge Worlds' surface: the title registry, the shared player profile, inventory, seasons and provisions. States the title gap plainly rather than behind a spinner. |
+| [`micro-explorer-web`](https://github.com/cloudsforge-online/micro-explorer-web) | The chain explorer: blocks, transactions, addresses and token state, read anonymously from the index. |
+| [`micro-network-site`](https://github.com/cloudsforge-online/micro-network-site) | Forge Network's front door: what Hearth is, how to run a node, the state of the network, and the faucet. Every figure is fetched or absent — there is no path from an absence to a digit. |
+| [`micro-devportal-web`](https://github.com/cloudsforge-online/micro-devportal-web) | The Developer Platform console: organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. A key is shown once, and the screen says so before the request is made. |
 
 ### Operations
 
@@ -197,7 +203,7 @@ Never a product, and never in a product grid as a peer.
 | --- | --- |
 | [`micro-beacon`](https://github.com/cloudsforge-online/micro-beacon) | Synthetic probes, journeys, incidents, SLOs and error budgets. **The release gate** — an unknown refuses. |
 | [`micro-lantern`](https://github.com/cloudsforge-online/micro-lantern) | Log triage: OTLP ingest, error grouping, browser errors and trace lookup. Credentials are scrubbed before anything is stored. |
-| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The testnet EMBER faucet. It refuses to start against a chain that is not the testnet. |
+| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The EMBER faucet. It refuses to start against a chain that is not the testnet — and there is no public testnet yet, so it has nothing to point at. |
 | [`micro-deploy`](https://github.com/cloudsforge-online/micro-deploy) | The telemetry stack, the gateway configuration and the public API route map. |
 
 ### Libraries and machinery
@@ -223,10 +229,9 @@ Never a product, and never in a product grid as a peer.
 
 ### Still in build
 
-These do not exist yet — the links above are to repositories that do.
-
-`micro-mint-web`, `micro-trade-web`, `micro-worlds-web`, `micro-explorer-web`,
-`micro-network-site`, `micro-devportal-web`.
+**Nothing.** Every repository in the plan is built, tested and green. The last was
+`micro-network-site`; the estate is repository-complete and deployment-zero, which
+is the honest way round to say it — see Status.
 
 ### Predecessors
 
@@ -278,9 +283,25 @@ is a defect.
 
 ## Status
 
-**Pre-launch, and honest about it.** Forty-eight repositories are built and
-tested — 383 test files, every service suite running against a real Postgres and
-failing the build if it skips them. Hearth runs on a testnet.
+**Pre-launch, and honest about it.** Fifty-two repositories are built and
+tested — 467 test files, every service suite running against a real Postgres and
+failing the build if it skips them.
+
+**Hearth has no testnet and no mainnet.** Its own map is explicit: "there is no
+live endpoint, no testnet and no mainnet". Consensus on the account model is
+merged and blocks are produced, validated and reorged across real nodes — but the
+three-node stack binds `127.0.0.1`, nothing routes it, and no genesis outlives a
+`docker compose down -v`. This page said "Hearth runs on a testnet", which was
+wrong.
+
+**Two mining claims this page used to make are retracted, because Hearth's own
+documents retract them.** The proof-of-work is *not* non-outsourceable: the private
+key is used after a nonce wins rather than inside the hash loop, so a pool operator
+can hand out work under its own public key, collect nonces, and sign the blocks
+itself — `docs/mining.md` says so in as many words, and calls it deliberately open
+rather than overlooked. And ASIC-resistance rests on a production scratchpad of
+around 2 GiB; what ships today is the development size, 8,192 words. Neither is a
+defect being hidden. Both were this page describing an intention as a property.
 
 Forty-seven are green in CI. `micro-sdk` is red: a check that compares the
 OpenAPI description against the gateway's route map reads that map out of
