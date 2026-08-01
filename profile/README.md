@@ -2,53 +2,84 @@
 
 # CloudsForge
 
-**One crypto world. Mine it, trade it, make it, sell it, play in it, and stake on what happens next.**
+**One crypto world. Mine it, hold it, forge it, trade it, sell it, play in it,
+predict on it, and build on it.**
 
-Six products, one account, one wallet. The point of the account is not the
-account — it is that the balance you earn or buy once works everywhere, and that
-the coin you mine on your own laptop is the same coin that funds the rest.
+Almost every consumer crypto platform is an exchange with features bolted on.
+CloudsForge is the inverse: a set of things worth doing, funded by a currency you
+can produce yourself on a laptop, with the account, the wallet and the ledger
+shared across all of them.
 
 ## The loop
 
-Mine EMBER at home → deposit it → convert it to Shards → spend it across
-everything we make → and what you earn back lands in the same wallet.
+**The loop is the product.** A CPU-mineable coin that is the actual funding rail
+for real products is the thing no one else can tell.
 
-Hearth's proof-of-work is CPU-only and non-outsourceable. No farms, no pools, no
-rigs — the work has to happen on the machine that owns the reward.
+```
+   mine EMBER on your own CPU            Hearth — Homefire PoW, no farms, no pools
+              │
+              ▼
+   deposit into your wallet              custody mints the key, the indexer confirms it
+              │
+              ▼
+   hold, convert, or reserve             one ledger, double-entry, one portfolio
+              │
+              ├──► forge a token or a brand      Forge Create
+              ├──► run a strategy                Forge Trade
+              ├──► play, earn, own               Forge Worlds
+              ├──► sell it, buy someone else's   Forge Market
+              ├──► stake on what happens next    Forge Foresight
+              └──► build on all of it            Developer Platform
+              │
+              ▼
+   withdraw back out on-chain, or to     one activity history, one set of
+   your own external wallet              notifications
+```
 
-That is the whole point of one account. The coin you mined funds a backtest, and
-the bot that survives it is charged from the same balance. A token you launch is
-listed in the same marketplace, and the royalty comes back to the same wallet. A
-season in a world that ends is bought with the same Shards as a position on a
-market that settles on chain — and a community can hold a treasury that spends
-the same way, because a treasury here is a ledger account like any other.
+**That last arrow is not decoration.** *A user can always leave with their assets*
+is a stated principle, not a feature: private-key access for a wallet you own is a
+product requirement. The safeguards are ours to design; the right is not ours to
+withhold.
 
-**Forge Hub** is where all of it is visible at once: one dashboard, one portfolio,
-one search across the six. It is deliberately not a seventh product — it is the
-container the other six sit inside, which is why it sells nothing.
+## The six products, the control centre, and the developer surface
 
-## The six
+Everything else is **spine** — identity, the ledger, custody, the indexer, policy,
+activity, notifications, billing, the gateway, Lantern and Beacon. Spine never
+appears in a product grid as a peer, because an account is not something a person
+chooses; it is something they are given.
 
-Each row links to the repository that owns it. **Only Forge Network's is public**
-— the other five are private, so they open for members of this organisation and
-404 for everybody else.
-
-|  | | |
+| Verb | Surface | What it is |
 | --- | --- | --- |
-| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | A CPU-mined, ASIC-resistant proof-of-work coin. Homefire PoW, UTXO + Ed25519, 15-second blocks, no premine. EMBER is the unit. Public, and takes outside contributors. |
-| **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Strategies backtested against real market history with fees and slippage charged — because a strategy that only works for free does not work. What survives goes to paper, and only then to money. Not an exchange. |
-| **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Token deployment across the EVM majors and Solana. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
-| **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Listings, offers, auctions and escrow. The escrow is a reservation in the ledger rather than a balance we hold, and every royalty split sums exactly to the sale price. |
-| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The platform games are built on, not a game: one player profile, one inventory, seasons and entitlements shared across every title. Two run on it — *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)*, one shared map whose resources genuinely run out and whose 90-day season seals into history, and *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)*, a monster-collecting RPG where how you raise a creature decides what it becomes. |
-| **Predict** | **[Forge Foresight](https://github.com/cloudsforge-online/micro-foresight)** | Parimutuel markets on future events, staked in EMBER and **settled by the contract, not by us**. If our database vanished, every stake would still be in the contract and every winner could still claim. |
+| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | The EMBER chain: node, mining, explorer, faucet, RPC and SDK. CPU-mined and ASIC-resistant — Homefire PoW, UTXO + Ed25519, 15-second blocks, no premine. |
+| **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Brand generation, token deployment, project pages, the launch flow. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
+| **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Backtesting, the strategy catalogue, paper and live bots, performance reporting. Fees and slippage are charged, because a strategy that only works for free does not work. Not an exchange. |
+| **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Discovery, listings, auctions, offers, escrow, creator and project profiles. The escrow is a reservation in the ledger rather than a balance we hold. |
+| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The game platform, not a game — one player profile, one inventory, seasons and entitlements across every title. *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)* is its first title, not its definition; *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)* is its second. |
+| **Predict** | **[Forge Foresight](https://github.com/cloudsforge-online/micro-foresight)** | Markets on future events, staked and settled in EMBER **on the chain itself**. The service orchestrates; the contract is the custodian. |
+| **Spend** | **[Wallet](https://github.com/cloudsforge-online/micro-wallet)** | Balance, receive, send, convert, history. Presented **inside Forge Hub**, deliberately not as a destination — nobody wakes up wanting to visit a payments product. |
+| **Build** | **[Developer Platform](https://github.com/cloudsforge-online/micro-devplatform)** | Projects, API keys, OAuth clients, webhooks, quotas, and the [SDK and CLI](https://github.com/cloudsforge-online/micro-sdk). |
+| — | **[Forge Hub](https://github.com/cloudsforge-online/micro-hub-api)** | The control centre: dashboard, portfolio, wallet, activity, settings, security. Where you land after signing in, and the container the rest sit inside. It sells nothing. |
 
-Beneath those, and deliberately not products: identity and custody, the ledger,
-the wallet, settlement, the chain indexer, pricing, billing, policy, notifications,
-activity, the developer platform, analytics, asset generation, the operator tooling
-— and the governance layer, where a community's proposals, votes and treasury run
-across the six rather than inside any one of them. **Every one of them is listed
-below with what it owns.** An account is not something you choose; it is something
-you are given.
+## Is it actually one platform?
+
+The test is not whether the products share a logo. It is whether these hold. This
+is the same scorecard the engineering log keeps, reproduced rather than summarised.
+
+| # | One platform means | Today |
+| --- | --- | --- |
+| 1 | One account signs into everything, once. | **True** |
+| 2 | One identity — the same profile and handle everywhere. | Partly — one user row, no profile beyond a handle |
+| 3 | One wallet experience, whichever product you came from. | **True** — one wallet service, one set of screens |
+| 4 | One portfolio — a single number that is the truth about what you hold. | **True** — composed by `hub-api` |
+| 5 | One activity history across money, assets, play and governance. | **True** — `activity` owns the canonical record |
+| 6 | One internal economy — Shards and EMBER spend identically everywhere. | Partly — universal, but little earns them yet |
+| 7 | Assets created in one product are usable in the others. | Partly — the entitlement bridge exists; no title consumes it yet |
+| 8 | One set of notifications, one preference page. | **True** |
+| 9 | One operator view — any question answered from one place. | **True** — `admin-api` and its console |
+| 10 | One financial source of truth that reconciles against the chain. | Partly — reconciliation compares the ledger against itself |
+| 11 | A third party can build on all of it. | Partly — the platform and SDK exist; nothing is serving yet |
+
+Three of these were true when the programme started.
 
 ## What we will not do
 
@@ -116,14 +147,27 @@ nothing but cosmetics and seasons.
 | [`micro-nda`](https://github.com/cloudsforge-online/micro-nda) | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
 | [`micro-emberkin`](https://github.com/cloudsforge-online/micro-emberkin) | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
 
-### The platform beneath them
+### The control centre, the wallet and the developer surface
+
+Customer-facing, but not products — the vision document is explicit that an account is not
+something a person chooses, and that Forge Pay stopped being a destination because nobody wakes
+up wanting to visit a payments product.
+
+| Repository | Scope |
+| --- | --- |
+| [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | **Forge Hub**'s BFF: dashboard aggregation, portfolio composition, unified search and suggested actions. The container the six sit inside. |
+| [`micro-wallet`](https://github.com/cloudsforge-online/micro-wallet) | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. The engine under Hub's wallet tab. |
+| [`micro-devplatform`](https://github.com/cloudsforge-online/micro-devplatform) | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash. |
+
+### The spine
+
+Never a product, and never in a product grid as a peer.
 
 | Repository | Scope |
 | --- | --- |
 | [`micro-identity`](https://github.com/cloudsforge-online/micro-identity) | Accounts, credentials, MFA, sessions, devices, refresh families, signing keys and JWKS. The root of trust. |
 | [`micro-ledger`](https://github.com/cloudsforge-online/micro-ledger) | Double-entry accounting: chart of accounts, journal entries, postings, balances, reservations, reconciliation. Its database refuses an unbalanced journal. |
 | [`micro-custody`](https://github.com/cloudsforge-online/micro-custody) | HD seeds, key generation, the encryption envelope, signing policy and key lifecycle. It has no reveal endpoint, by deletion rather than by guard. |
-| [`micro-wallet`](https://github.com/cloudsforge-online/micro-wallet) | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. |
 | [`micro-settlement`](https://github.com/cloudsforge-online/micro-settlement) | Treasuries, sweeps, outbound transaction building, broadcast and confirmation tracking. |
 | [`micro-indexer`](https://github.com/cloudsforge-online/micro-indexer) | Blocks, transactions, receipts, logs, address activity, balances, reorgs and provider health. Reorg safety is the whole job. |
 | [`micro-pricing`](https://github.com/cloudsforge-online/micro-pricing) | Market sources, the median oracle, administered prices, spread policy and rate history. A rate that cannot be quoted is an error, never a default. |
@@ -131,9 +175,7 @@ nothing but cosmetics and seasons.
 | [`micro-policy`](https://github.com/cloudsforge-online/micro-policy) | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals and freezes. Fail-closed and fail-open are separated deliberately. |
 | [`micro-activity`](https://github.com/cloudsforge-online/micro-activity) | The canonical activity record and the unified feed. |
 | [`micro-notify`](https://github.com/cloudsforge-online/micro-notify) | Preferences, templates, notifications, deliveries, digests and developer webhooks. A critical notification ignores preferences. |
-| [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | **Forge Hub**'s BFF: dashboard aggregation, portfolio composition, unified search and suggested actions. Hub is the container the six products sit inside, not a seventh product. |
 | [`micro-community`](https://github.com/cloudsforge-online/micro-community) | Communities, membership, proposals, votes, delegations, timelocks and treasury executions — governance across products rather than a product of its own. A treasury is a ledger account. |
-| [`micro-devplatform`](https://github.com/cloudsforge-online/micro-devplatform) | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash. |
 | [`micro-admin-api`](https://github.com/cloudsforge-online/micro-admin-api) | The operator BFF: cross-service actions, approval queues and a tamper-evident audit mirror. |
 | [`micro-studio`](https://github.com/cloudsforge-online/micro-studio) | Asset generation as a service: brand kits, asset specs, leased generation jobs and assets whose provenance is complete. Spend is capped by a conditional UPDATE before the model call, not by a prompt. |
 | [`micro-analytics`](https://github.com/cloudsforge-online/micro-analytics) | A pseudonymised product event store, funnels, cohorts and retention. A raw subject cannot be stored, even with the service bypassed. |
