@@ -159,10 +159,56 @@ second connection string, and CI greps for that.
 deployable and are the rollback target; the estate above was built beside them.
 
 
+## Security
+
+**Hearth is money, and a consensus bug is not a defect report — it is a loss of funds.** The
+disclosure policy lives with the chain:
+[SECURITY.md](https://github.com/cloudsforge-online/hearth/blob/main/SECURITY.md). It covers the
+whole estate, not only the node.
+
+Please report privately and give us time to fix it. Do not open a public issue for anything
+touching consensus, custody, the ledger, or authentication.
+
+What we have already decided, so you know what you are looking at:
+
+- **The custody service has no key-reveal endpoint.** Not guarded — deleted. There is no
+  authenticated path to a private key.
+- **Signing shapes are closed.** A custody key may produce a value transfer or a contract creation
+  and nothing else; widening that would make the key a signing oracle.
+- **Money invariants live in the database.** The ledger's deferred constraint refuses an unbalanced
+  journal against a caller holding a connection, not merely against a caller using the service.
+- **The first admin is a manual database update**, deliberately. A service that can mint its own
+  first administrator is a service whose compromise grants the estate.
+
+## The stack
+
+TypeScript on Node 22, ESM, strict — `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`
+everywhere. Postgres per service. `node:test` and nothing else. React 19 and Vite for the
+frontends, nginx for serving them, Traefik at the edge, and OpenTelemetry into Prometheus, Tempo,
+Loki and Grafana.
+
+No message broker. No shared database. No ORM. Money is `bigint`; a float anywhere near an amount
+is a defect.
+
+## Where to start reading
+
+- **The chain** — [`hearth`](https://github.com/cloudsforge-online/hearth) is public and is where
+  the interesting cryptography is.
+- **The reasoning** — `micro-docs` carries the architecture and security decisions with the
+  alternatives that were rejected, and a build ledger recording the defects found on the way,
+  including the ones deliberately left open.
+- **The shape of a service** — `micro-service-template` is a working skeleton; every service is cut
+  from it.
+
 ## Status
 
-**Pre-launch, and honest about it.** The services are built and tested; nothing
-is serving the public yet. Hearth runs on a testnet. Where a product page says a
+**Pre-launch, and honest about it.** Forty-six repositories are built, tested and
+green in CI — around 6,700 tests, every service suite running against a real
+Postgres. Hearth runs on a testnet.
+
+**Nothing is serving the public yet, and almost nothing is deployed.** Two
+services have been run together against a real database to prove the seams; the
+rest exist as code that passes its own tests. Where a product page says a
 capability is in build, it means exactly that.
 
 Most repositories are private while the estate settles. Hearth is public, takes
