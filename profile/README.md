@@ -52,7 +52,7 @@ chooses; it is something they are given.
 | **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Brand generation, token deployment, project pages, the launch flow. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
 | **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Backtesting, the strategy catalogue, paper and live bots, performance reporting. Fees and slippage are charged, because a strategy that only works for free does not work. Not an exchange. |
 | **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Discovery, listings, auctions, offers, escrow, creator and project profiles. The escrow is a reservation in the ledger rather than a balance we hold. |
-| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The game platform, not a game — one player profile, one inventory, seasons and entitlements across every title. *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)* is its first title, not its definition; *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)* is its second. |
+| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The game platform, not a game — one player profile, one inventory, seasons and entitlements across every title. *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)* is its first title, not its definition; *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)* is its second, and *[Aetherholm](https://github.com/cloudsforge-online/micro-aetherholm)* — a sky-island strategy MMO — is its third, in build. |
 | **Predict** | **[Forge Foresight](https://github.com/cloudsforge-online/micro-foresight)** | Markets on future events, staked and settled in EMBER **on the chain itself**. The service orchestrates; the contract is the custodian. |
 | **Spend** | **[Wallet](https://github.com/cloudsforge-online/micro-wallet)** | Balance, receive, send, convert, history. Presented **inside Forge Hub**, deliberately not as a destination — nobody wakes up wanting to visit a payments product. |
 | **Build** | **[Developer Platform](https://github.com/cloudsforge-online/micro-devplatform)** | Projects, API keys, OAuth clients, webhooks, quotas, and the [SDK and CLI](https://github.com/cloudsforge-online/micro-sdk). |
@@ -144,6 +144,7 @@ nothing but cosmetics and seasons.
 | --- | --- |
 | [`micro-nda`](https://github.com/cloudsforge-online/micro-nda) | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
 | [`micro-emberkin`](https://github.com/cloudsforge-online/micro-emberkin) | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
+| [`micro-aetherholm`](https://github.com/cloudsforge-online/micro-aetherholm) | *Aetherholm*: a sky-island strategy MMO — mine Aether, command airship fleets, contest an archipelago that seals when the season ends. The first title designed inside the standards rather than migrated up to them, and the first to implement the provisioning contract Worlds calls. |
 
 ### The control centre, the wallet and the developer surface
 
@@ -229,9 +230,11 @@ Never a product, and never in a product grid as a peer.
 
 ### Still in build
 
-**Nothing.** Every repository in the plan is built, tested and green. The last was
-`micro-network-site`; the estate is repository-complete and deployment-zero, which
-is the honest way round to say it — see Status.
+`micro-aetherholm-web` and `micro-aetherholm-assets` — the client and the art for the third
+Worlds title ([design: docs/ecosystem/20-aetherholm.md](https://github.com/cloudsforge-online/micro-docs)).
+The service itself is built and green, phase 2 (fleets, battles, season sealing) is in build, and
+the target set is 55. Everything the original migration planned is done; these are the new
+product's remaining two.
 
 ### Predecessors
 
@@ -283,7 +286,7 @@ is a defect.
 
 ## Status
 
-**Pre-launch, and honest about it.** Fifty-two repositories are built and
+**Pre-launch, and honest about it.** Fifty-three repositories are built and
 tested — 467 test files, every service suite running against a real Postgres and
 failing the build if it skips them.
 
@@ -310,8 +313,11 @@ The check is right and the workflow is wrong; it is being fixed rather than
 weakened. **Red runs are never deleted here** — the history of what failed is the
 only evidence that a suite ever had teeth.
 
-**Nothing is serving the public yet, and almost nothing is deployed.** Two
-services have been run together against a real database to prove the seams; the
+**Nothing is serving the public yet, and almost nothing is deployed.** Three
+services now run composed against a real database — and the estate's event bus
+delivered its first event across them: a sign-in crossing outbox → signed HTTP →
+inbox into the right user's feed, after six cross-service defects that no single
+repository's suite could see (the engineering log's §3.3p tells that story). The
 rest exist as code that passes its own tests. Where a product page says a
 capability is in build, it means exactly that.
 
