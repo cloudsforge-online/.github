@@ -20,23 +20,35 @@ That is the whole point of one account. The coin you mined funds a backtest, and
 the bot that survives it is charged from the same balance. A token you launch is
 listed in the same marketplace, and the royalty comes back to the same wallet. A
 season in a world that ends is bought with the same Shards as a position on a
-market that settles on chain. **Forge Hub** is where all of it is visible at
-once — not a seventh product, but the container the other six sit inside.
+market that settles on chain — and a community can hold a treasury that spends
+the same way, because a treasury here is a ledger account like any other.
+
+**Forge Hub** is where all of it is visible at once: one dashboard, one portfolio,
+one search across the six. It is deliberately not a seventh product — it is the
+container the other six sit inside, which is why it sells nothing.
 
 ## The six
 
+Each row links to the repository that owns it. **Only Forge Network's is public**
+— the other five are private, so they open for members of this organisation and
+404 for everybody else.
+
 |  | | |
 | --- | --- | --- |
-| **Mine** | **Forge Network** | A CPU-mined, ASIC-resistant proof-of-work coin. Homefire PoW, UTXO + Ed25519, 15-second blocks, no premine. EMBER is the unit. → [repository](https://github.com/cloudsforge-online/hearth) |
-| **Trade** | **Forge Trade** | Strategies backtested against real market history with fees and slippage charged — because a strategy that only works for free does not work. What survives goes to paper, and only then to money. Not an exchange. |
-| **Make** | **Forge Create** | Token deployment across the EVM majors and Solana. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
-| **Sell** | **Forge Market** | Listings, offers, auctions and escrow. The escrow is a reservation in the ledger rather than a balance we hold, and every royalty split sums exactly to the sale price. |
-| **Play** | **Forge Worlds** | Worlds built to end. *Ninety Days After* is one shared map with resources that genuinely run out and a 90-day season that seals into history. *Emberkin* is a monster-collecting RPG where how you raise a creature decides what it becomes. |
-| **Predict** | **Forge Foresight** | Parimutuel markets on future events, staked in EMBER and **settled by the contract, not by us**. If our database vanished, every stake would still be in the contract and every winner could still claim. |
+| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | A CPU-mined, ASIC-resistant proof-of-work coin. Homefire PoW, UTXO + Ed25519, 15-second blocks, no premine. EMBER is the unit. Public, and takes outside contributors. |
+| **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Strategies backtested against real market history with fees and slippage charged — because a strategy that only works for free does not work. What survives goes to paper, and only then to money. Not an exchange. |
+| **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Token deployment across the EVM majors and Solana. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
+| **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Listings, offers, auctions and escrow. The escrow is a reservation in the ledger rather than a balance we hold, and every royalty split sums exactly to the sale price. |
+| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The platform games are built on, not a game: one player profile, one inventory, seasons and entitlements shared across every title. Two run on it — *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)*, one shared map whose resources genuinely run out and whose 90-day season seals into history, and *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)*, a monster-collecting RPG where how you raise a creature decides what it becomes. |
+| **Predict** | **[Forge Foresight](https://github.com/cloudsforge-online/micro-foresight)** | Parimutuel markets on future events, staked in EMBER and **settled by the contract, not by us**. If our database vanished, every stake would still be in the contract and every winner could still claim. |
 
-Beneath those, and deliberately not products: identity, custody, the ledger,
-settlement, the chain indexer, pricing, billing, policy and the operator tooling.
-An account is not something you choose. It is something you are given.
+Beneath those, and deliberately not products: identity and custody, the ledger,
+the wallet, settlement, the chain indexer, pricing, billing, policy, notifications,
+activity, the developer platform, analytics, asset generation, the operator tooling
+— and the governance layer, where a community's proposals, votes and treasury run
+across the six rather than inside any one of them. **Every one of them is listed
+below with what it owns.** An account is not something you choose; it is something
+you are given.
 
 ## What we will not do
 
