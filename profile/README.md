@@ -280,11 +280,15 @@ DOM, and the catalogue behind it is 318 browser scenarios decomposed from the
 twenty-one user journeys. `admin-web` and `hub-web` still have neither and are the
 two exceptions, which is why the number is fourteen and not sixteen.
 
-The engineering log is public to the people who work here: twenty-five documents
+The engineering log is public to the people who work here: twenty-seven documents
 covering the architecture and security decisions, the domain model, the testing
 strategy, and a build ledger that records what is actually true rather than what
 was planned — including the defects found on the way and the ones deliberately
-left open.
+left open. The newest is the design for a **self-custody wallet** across desktop,
+mobile and the browser extensions — the wallet CloudsForge does not hold the keys
+to, which is what makes "a user can always leave with their assets" a right rather
+than a favour. It is a design and not yet a line of code, and it is listed here on
+the same terms as everything else on this page.
 
 ### Who wrote it
 
