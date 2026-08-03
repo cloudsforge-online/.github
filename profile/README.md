@@ -204,7 +204,7 @@ DOM, and the catalogue behind it is 318 browser scenarios decomposed from the
 twenty-one user journeys. `admin-web` and `hub-web` still have neither and are the
 two exceptions, which is why the number is fourteen and not sixteen.
 
-The engineering log is public to the people who work here: twenty-three documents
+The engineering log is public to the people who work here: twenty-five documents
 covering the architecture and security decisions, the domain model, the testing
 strategy, and a build ledger that records what is actually true rather than what
 was planned — including the defects found on the way and the ones deliberately
@@ -332,7 +332,7 @@ entry, and in the licence string the asset itself carries.
 | [`micro-emberkin-assets`](https://github.com/cloudsforge-online/micro-emberkin-assets) | 83 generated images and 51 derivatives for Emberkin, prompted from the game's own visual spec. |
 | [`micro-aetherholm-assets`](https://github.com/cloudsforge-online/micro-aetherholm-assets) | 96 generated images and 5 derivatives for Aetherholm, on FLUX 2 Pro. |
 | [`micro-tessera-assets`](https://github.com/cloudsforge-online/micro-tessera-assets) | The Tessera art set: 392 assets specified — 288 generated, 104 derived — produced by **both** FLUX 2 Pro and Qwen-Image 2512 and judged against criteria fixed in `COMPARISON.md` **before either set existed**. The generation run is still going. |
-| [`micro-docs`](https://github.com/cloudsforge-online/micro-docs) | Twenty-three documents: the architecture and security decisions, the domain model, the testing strategy, the browser-journey catalogue, the engagement treasury, Aetherholm, Tessera, and a build ledger recording what is actually true. |
+| [`micro-docs`](https://github.com/cloudsforge-online/micro-docs) | Twenty-five documents: the architecture and security decisions, the domain model, the testing strategy, the browser-journey catalogue, the engagement treasury, Aetherholm, Tessera, and a build ledger recording what is actually true. |
 | [`micro-conformance`](https://github.com/cloudsforge-online/micro-conformance) | A recorded corpus of real interactions — the behavioural baseline a successor has to match. |
 | [`.github`](https://github.com/cloudsforge-online/.github) | This page. |
 
