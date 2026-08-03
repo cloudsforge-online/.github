@@ -20,11 +20,13 @@ for real products is the thing no one else can tell.
    deposit into your wallet              custody mints the key, the indexer confirms it
               │
               ▼
-   hold, convert, or reserve             one ledger, double-entry, one portfolio
-              │
+   hold, reserve, spend                  one ledger, double-entry, one portfolio
+   priced in EMBER, shown in Sparks      a Spark is 10⁻⁶ EMBER — a display unit,
+              │                          never a second asset code
               ├──► forge a token or a brand      Forge Create
               ├──► run a strategy                Forge Trade
-              ├──► play, earn, own               Forge Worlds
+              ├──► play, build a place, own      Forge Worlds — Ninety Days After,
+              │                                    Emberkin, Aetherholm, Tessera
               ├──► sell it, buy someone else's   Forge Market
               ├──► stake on what happens next    Forge Foresight
               └──► build on all of it            Developer Platform
@@ -39,10 +41,32 @@ is a stated principle, not a feature: private-key access for a wallet you own is
 product requirement. The safeguards are ours to design; the right is not ours to
 withhold.
 
-**The word "earn" in that diagram is still doing more work than the code is.** One
+**Two words left that diagram in this revision, and both departures are the point.**
+
+*"Earn"* was in the play arrow, and it was doing more work than the code is. One
 surface credits a seller today — Forge Market, at
-[`market/src/orders.ts:324`](https://github.com/cloudsforge-online/micro-market). The rest
-spend. See row 6 of the scorecard, which is the honest version.
+[`market/src/orders.ts:324`](https://github.com/cloudsforge-online/micro-market),
+which posts a balanced entry into a seller's `payout_due`. Tessera now reaches that
+same settlement rather than owning a second copy of it, so it is the second surface
+where a creator is genuinely paid. The rest still only spend, which is why the arrow
+claims play and ownership and stops there. See row 6 of the scorecard.
+
+*"Convert"* was in the hold step, and it is leaving for a happier reason: **there
+will shortly be nothing to convert.** Conversion exists because the estate has two
+kinds of money — Shards inside, EMBER on the chain — and converting between them
+needs a rate. Wallet's implementation of it is careful work, not a defect: it posts
+the counter-entry to a `clearing` account precisely so that Shards issued against
+received coin must keep corresponding, and *"if those two stop corresponding,
+something is minting"* (`wallet/src/money.ts:30-43`). That shape was written to fix
+the legacy `convertCoinToEmber`, which credited custodial EMBER "with no
+counter-account and therefore nothing that could ever notice".
+
+But the better answer than a well-guarded rate is no rate at all. **One asset, one
+trial balance, one number to reconcile against the chain**: prices are EMBER, Sparks
+is what the client prints, and a Spark is 10⁻⁶ EMBER — a denomination rather than a
+second thing to balance. The owner's rule underneath it — **no balance may exist
+that the chain does not back** — is why Shards are being removed rather than
+repaired, and why the step that bridged them is being removed with them.
 
 ## The six products, the control centre, and the developer surface
 
@@ -75,11 +99,26 @@ Tessera cannot look bad, because the thing making it is a painter. What is given
 — first-person immersion, free-look, standing at human scale in a space someone
 built — is named once in the design rather than discovered in week three.
 
-The service binds port 4022, runs 97 tests against a real Postgres, and the
-generation path works end to end. **It is designed as the first surface where EMBER
-is earned, and that half is not built yet** — the payout function exists
-(`tessera/src/ledgerclient.ts:346`) and nothing calls it. Selling is a listing that
-goes `sold`; the money does not move. The page will say so until it does.
+The service binds port 4022, runs **143** tests against a real Postgres, and the
+generation path works end to end.
+
+**The earning half moved, and it moved by deleting code rather than writing it.**
+This page used to say a payout function existed with nothing calling it. That
+function is now *gone* — and its absence is the correction. It had zero callers,
+which read like unfinished work and was actually a hazard: `micro-market` already
+does both halves, so Tessera doing them too would be **a second service releasing
+one payout**. Market credits the seller's `payout_due` at
+[`market/src/orders.ts:339`](https://github.com/cloudsforge-online/micro-market) and
+releases it to `available` from a leased job once `payout_due_at` passes
+(`orders.ts:696`, `jobs.ts:322`). A Tessera release would debit money market had
+already moved, and the ledger would refuse it outright.
+
+So what was missing was never a payout. It was that **no Tessera listing had ever
+reached micro-market** — nothing could settle, so there was nothing to release.
+`activateListing` is that fix, wired at `tessera/src/index.ts:215`, and a test
+asserts the deleted functions cannot quietly return
+(`tessera/src/economy.test.ts:364`), because an exported function with no callers is
+an invitation. A creator is now paid end to end, by the service that holds the sale.
 
 ## Is it actually one platform?
 
@@ -99,23 +138,44 @@ forward.
 | 7 | Assets created in one product are usable in the others. | Partly — the entitlement bridge exists; no title consumes it yet |
 | 8 | One set of notifications, one preference page. | **True** |
 | 9 | One operator view — any question answered from one place. | **True** — and it now has a producer for every topic it consumes |
-| 10 | One financial source of truth that reconciles against the chain. | Partly — the ledger asks the chain now, but nothing in the estate can answer yet |
+| 10 | One financial source of truth that reconciles against the chain. | Partly — driven clean against a live testnet at drift 0, but the credential expires between runs |
 | 11 | A third party can build on all of it. | Partly — the platform and SDK exist; nothing is serving yet |
 
 Three of these were true when the programme started.
 
-**Row 6 moved backwards on inspection, not forwards.** This page previously said
-"universal, but little earns them yet". Two things are truer than that. First, one
-surface genuinely credits a seller — `market/src/orders.ts:324` posts a balanced
-entry into a seller's `payout_due`. Tessera, designed to be the first, is not it:
-its market client and ledger client are imported by nothing, so a Tessera sale
-changes a row's status and moves no money. Second, the money itself is mid-change:
-**Shards are being replaced estate-wide by EMBER with a subunit called Sparks**, and
-that work is early — `'SHARD'` is still a live asset code in 21 repositories and in
-the shared contract (`contracts/packages/chain/src/index.ts:19`), while "Sparks"
-exists in exactly two files, both Tessera's. The rule driving it is the owner's:
-**no balance may exist that the chain does not back.** Today Shards are explicitly
-outside that guarantee, which is the whole reason the change is happening.
+**Row 6 moved backwards on inspection last revision, and forwards on this one.**
+The backwards step was honest: this page had said "universal, but little earns them
+yet", when in truth exactly one surface credited a seller — `market/src/orders.ts:324`,
+posting a balanced entry into a seller's `payout_due` — and Tessera, designed to be
+the first, was not it. Its market and ledger clients were imported by nothing, so a
+Tessera sale changed a row's status and moved no money.
+
+That is now fixed, and by subtraction. Tessera's own payout function was **deleted**
+rather than wired, because market already credits *and* releases; a second release
+would have been double payment against a `payout_due` the ledger would refuse. The
+real gap was that no Tessera listing ever reached market. `activateListing`
+(`tessera/src/index.ts:215`) closes it, so a creator is paid by the service that
+holds the sale. Two surfaces now earn, not one — and the second one earns through
+the first rather than beside it. Second, the money itself is mid-change:
+**Shards are being replaced estate-wide by EMBER, denominated in Sparks**, and the
+counts moved on both sides since the last revision. `'SHARD'` is still a live asset
+code in **19** repositories — down from 21 — and still in the shared contract
+(`contracts/packages/chain/src/index.ts:19`), which is the one that matters, because
+every service reads its asset codes from there. "Sparks" has gone from two files to
+**14 across three repositories**, and the third is the interesting one: it is no
+longer only Tessera's word. `notify` now speaks it in `catalogue.ts` and
+`templates.ts`, which means the denomination has reached the surface that writes to
+users rather than staying inside the service that invented it.
+
+Sparks is a **display denomination, never a second asset code** — a Spark is 10⁻⁶
+EMBER, and `tessera/src/sparks.test.ts` greps the source to keep `'SPARK'` from ever
+becoming an `assetCode`. That constraint is not fussiness: the ledger's balancing
+invariant is enforced *per asset code* by trigger
+(`ledger/src/migrations.ts:302-313`), so a second code would let the two halves of
+the same money drift apart with nothing able to notice. The rule underneath all of
+it is the owner's: **no balance may exist that the chain does not back.** Shards sit
+outside that guarantee by construction, which is the whole reason they are being
+removed rather than fixed.
 
 **Row 10 moved, and the reason is worth reading.** Reconciliation used to compare
 the ledger against itself — vacuous, and worse than vacuous, because a self-
@@ -127,11 +187,27 @@ against itself proves nothing about the chain"*); the indexer serves a
 confirmed-only custody total that **refuses a partial sum**, erroring rather than
 returning a smaller number if a single address is unreadable
 (`indexer/src/custody.ts:293`); and the ledger's fifteen-minute job now actually
-makes the call (`ledger/src/jobs.ts:251`). It is still **Partly** for one reason: no
-deployment mints the ledger a credential for `indexer:read`, so the call 401s, the
-run records `unavailable`, and EMBER freezes. The service logs that at `fatal` on
-boot and names the remedy. **Failing closed is not the same as working**, and a
-frozen asset is the correct behaviour, not the finished one.
+makes the call (`ledger/src/jobs.ts:251`).
+
+**And it has now run clean against a real chain, once.** A live EMBER testnet was
+stood up inside the estate — Hearth's own testnet compose unmodified, chain id 7412,
+a CPU miner on the host — and the loop was driven end to end: `observed_source =
+'indexer'`, **drift of exactly 0 over 31,000,000,000,000,000,000 wei**, and the
+freeze lifted. Then the opposite direction, which matters more: with the custody set
+emptied the route refused with `no_custody_addresses` rather than answering zero, the
+ledger recorded `unavailable`, and the freeze came back. Restored, it went clean
+again. The three seed balances are 7, 11 and 13 EMBER — deliberately distinct and
+non-round, so a summing bug cannot balance by luck.
+
+It stays **Partly** for a narrower and sharper reason than before. The service
+credential lives **600 seconds** and the reconciliation job runs every **900**, so
+the call authenticates once at bootstrap and never again — and the resulting freeze
+is byte-identical to "the chain could not be observed". A guarantee that fails closed
+for the wrong reason still looks exactly like one working correctly, which is the
+same defect class this whole row exists to kill. That is being fixed by having the
+ledger exchange the long-lived credential it already receives, the way six other
+services already do. **Failing closed is not the same as working**, and a frozen
+asset remains the correct behaviour rather than the finished one.
 
 **Row 9 stayed True and got its evidence.** The operator console's tamper-evident
 audit mirror was a consumer with no producer — it subscribed to `*.audit.recorded`
