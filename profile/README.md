@@ -535,9 +535,18 @@ against real databases, and the estate's event bus delivers across them — the 
 event took six defects that no single repository's suite could see. The rest exist as code that
 passes its own tests. Where a product page says a capability is in build, it means exactly that.
 
-Most repositories are private while the estate settles. Hearth is public, takes outside
-contributors, and is where the interesting cryptography lives; the developer SDK becomes public
-with the API it describes.
+**The estate is open source.** All sixty-one active repositories are public — the services, the
+frontends, the contracts, the libraries, the asset sets and this engineering log. Hearth takes
+outside contributors and is where the interesting cryptography lives. The nine pre-migration
+repositories are archived read-only and kept private; each one's successor is named in its README,
+and the mapping is in `03-repository-responsibilities.md`.
+
+Being public was not only a disclosure decision. It is also what pays for CI: public repositories
+get unrestricted Actions minutes, so every repository's suite runs against a real Postgres on every
+push, for free, permanently. Before the switch, every commit in every repository's full history was
+scanned for key material. The only matches were deliberate ones — a canary string named
+`sk-this-must-never-appear`, PEM headers used as inputs to tests asserting they are *refused*, and
+a development database password the estate had already named `estate-only-not-a-real-password`.
 
 Nothing here promises a return. Backtests describe the past. Mining yields depend on difficulty. A
 parimutuel payout depends on the pool at settlement. A coin with no mainnet has no price.
