@@ -1,552 +1,303 @@
 # CloudsForge
 
-**One crypto world. Mine it, hold it, forge it, trade it, sell it, play in it,
-predict on it, and build on it.**
+A crypto platform built around a coin you can mine on your own computer: a chain, six products, an
+operator console and a developer platform, sharing one account, one wallet and one double-entry
+ledger.
 
-Almost every consumer crypto platform is an exchange with features bolted on.
-CloudsForge is the inverse: a set of things worth doing, funded by a currency you
-can produce yourself on a laptop, with the account, the wallet and the ledger
-shared across all of them.
+Everything below is measured, not estimated. Where something does not work, it says so.
 
-## The loop
+---
 
-**The loop is the product.** A CPU-mineable coin that is the actual funding rail
-for real products is the thing no one else can tell.
+## The estate, counted
 
-```
-   mine EMBER on your own CPU            Hearth — Homefire PoW, CPU-mined, ASIC-resistant
-              │
-              ▼
-   deposit into your wallet              custody mints the key, the indexer confirms it
-              │
-              ▼
-   hold, reserve, spend                  one ledger, double-entry, one portfolio
-   priced in EMBER, shown in Sparks      a Spark is 10⁻⁶ EMBER — a display unit,
-              │                          never a second asset code
-              ├──► forge a token or a brand      Forge Create
-              ├──► run a strategy                Forge Trade
-              ├──► play, build a place, own      Forge Worlds — Ninety Days After,
-              │                                    Emberkin, Aetherholm, Tessera
-              ├──► sell it, buy someone else's   Forge Market
-              ├──► stake on what happens next    Forge Foresight
-              └──► build on all of it            Developer Platform
-              │
-              ▼
-   withdraw back out on-chain, or to     one activity history, one set of
-   your own external wallet              notifications
-```
+| | |
+| --- | --- |
+| Repositories, public | **61** |
+| Repositories, archived read-only and private | 9 pre-migration predecessors, each naming its successors |
+| Services that bind a port | **30**, plus a service template that never deploys |
+| Frontends | **16** |
+| TypeScript / TSX files | **1,927** |
+| Lines of TypeScript | **556,610** |
+| Test files (`node:test`, no other runner) | **642** |
+| Distinct database tables | **221** |
+| HTTP route declarations | **604** |
+| Engineering documents | **27** |
+| Browser scenarios specified | **314** |
 
-**That last arrow is not decoration.** *A user can always leave with their assets*
-is a stated principle, not a feature: private-key access for a wallet you own is a
-product requirement. The safeguards are ours to design; the right is not ours to
-withhold.
+Counted on 2026-08-03 from the working tree, excluding `node_modules` and build output.
 
-**Two words left that diagram in this revision, and both departures are the point.**
+---
 
-*"Earn"* was in the play arrow, and it was doing more work than the code is. One
-surface credits a seller today — Forge Market, at
-[`market/src/orders.ts:324`](https://github.com/cloudsforge-online/micro-market),
-which posts a balanced entry into a seller's `payout_due`. Tessera now reaches that
-same settlement rather than owning a second copy of it, so it is the second surface
-where a creator is genuinely paid. The rest still only spend, which is why the arrow
-claims play and ownership and stops there. See row 6 of the scorecard.
+## The chain
 
-*"Convert"* was in the hold step, and it is leaving for a happier reason: **there
-will shortly be nothing to convert.** Conversion exists because the estate has two
-kinds of money — Shards inside, EMBER on the chain — and converting between them
-needs a rate. Wallet's implementation of it is careful work, not a defect: it posts
-the counter-entry to a `clearing` account precisely so that Shards issued against
-received coin must keep corresponding, and *"if those two stop corresponding,
-something is minting"* (`wallet/src/money.ts:30-43`). That shape was written to fix
-the legacy `convertCoinToEmber`, which credited custodial EMBER "with no
-counter-account and therefore nothing that could ever notice".
+**Hearth** is written here rather than forked. It is a proof-of-work chain that speaks Ethereum.
 
-But the better answer than a well-guarded rate is no rate at all. **One asset, one
-trial balance, one number to reconcile against the chain**: prices are EMBER, Sparks
-is what the client prints, and a Spark is 10⁻⁶ EMBER — a denomination rather than a
-second thing to balance. The owner's rule underneath it — **no balance may exist
-that the chain does not back** — is why Shards are being removed rather than
-repaired, and why the step that bridged them is being removed with them.
+| | |
+| --- | --- |
+| Consensus | Homefire proof-of-work — CPU-mined, memory-hard, ASIC-resistant |
+| Account model | EVM, written from scratch: interpreter, opcodes, gas, memory, stack, `uint256`, `bn128`, `blake2f`, precompiles |
+| Chain IDs | **7411** mainnet, **7412** testnet |
+| Block time | 15 seconds |
+| Decimals | 18 |
+| Block reward | 6 EMBER at genesis, decaying to a perpetual tail of 0.3 EMBER |
+| Premine | none |
+| Ethereum VMTests | **609 / 609** |
+| Ethereum GeneralStateTests | **20,077 / 20,077** |
 
-## The six products, the control centre, and the developer surface
+Because it is EVM-compatible, ordinary Ethereum tooling works against it, and a seed phrase derived
+at `m/44'/60'` restores in wallets nobody here wrote.
 
-Everything else is **spine** — identity, the ledger, custody, the indexer, policy,
-activity, notifications, billing, the gateway, Lantern and Beacon. Spine never
-appears in a product grid as a peer, because an account is not something a person
-chooses; it is something they are given.
+**A testnet is running now.** Chain ID 7412, a CPU miner producing blocks, currently past block
+**1,065**. It is not a public network and EMBER has no price.
 
-| Verb | Surface | What it is |
+---
+
+## What is running
+
+**41 containers**, composed against real Postgres — one database per service, no shared schema, no
+service reading another's tables. The estate boots from one command and includes the chain.
+
+**Continuous integration: 58 green, 1 red.** Every repository runs the same reusable workflow:
+typecheck, its own suite against a real Postgres, the estate rules, a container that must boot and
+answer `/livez`, and a secret-hygiene sweep. **A suite that skips its database tests fails the
+build.** (The remainder is the profile repository, which has no workflow.)
+
+That number was **zero** this morning — not zero green, zero *runs*. Every job in the organisation
+had been failing in under fifteen seconds with no steps executed, on a billing block. Making the
+estate public restored unlimited Actions, and within the hour CI had caught a cross-repository
+contract drift, a documentation gap, a container image job that had never once run for any service,
+and a flaky test that was hiding a real defect in an erasure path.
+
+---
+
+## How it is built
+
+**One repository per deployable.** A service owns its schema, its migrations, its tests and its
+container. Nothing shares a database.
+
+**Events go Postgres outbox → signed HTTP → inbox**, deduplicated on `(topic, event_id)`. There is
+no message broker. Currently **55 registered topics from 15 producers**, with 126 emit sites
+derived from source.
+
+**Authorisation is scoped per caller.** **61 scopes**, 56 live and 5 deprecated, with 59 demanded by
+gates across 27 repositories. A scope that no gate demands, and a gate demanding a scope that is not
+registered, both fail the build.
+
+**Invariants live in the schema**, not in handlers: `CHECK` constraints, deferred constraint
+triggers, generated columns, partial unique indexes and GiST exclusion constraints. The ledger's
+"debits equal credits, per entry, per asset" is a deferred trigger, so it holds against a `psql`
+session and a future service, not only against code that went through the API.
+
+**Four invariants belong to the estate rather than to any repository in it**, and run across a full
+clone: every service must agree on the ledger account types it names; every registered scope must be
+demanded somewhere; every event topic must have a producer and a consumer that agree it exists; and
+no route may return private key material — a body scan across roughly 498 routes. **Each carries a
+canary: a deliberately broken case the check must go red on.** A check that cannot fail is not a
+check.
+
+---
+
+## What is true today, and what is not
+
+Honest status of the claim that this is one platform rather than six products with a shared logo.
+
+| | | |
 | --- | --- | --- |
-| **Mine** | **[Forge Network](https://github.com/cloudsforge-online/hearth)** | The EMBER chain: node, mining, explorer, faucet, RPC and SDK. Homefire PoW, CPU-mined, 15-second blocks, no premine. Consensus on the **account model** is merged and the original UTXO chain is being retired. |
-| **Make** | **[Forge Create](https://github.com/cloudsforge-online/micro-mint)** | Brand generation, token deployment, project pages, the launch flow. Real OpenZeppelin contracts, testnet by default, mainnet when you mean it. |
-| **Trade** | **[Forge Trade](https://github.com/cloudsforge-online/micro-trade)** | Backtesting, the strategy catalogue, paper and live bots, performance reporting. Free until it makes money: the only charge is a share of a **live** bot's gains against a high-water mark. Not an exchange. |
-| **Sell** | **[Forge Market](https://github.com/cloudsforge-online/micro-market)** | Discovery, listings, auctions, offers, escrow, creator and project profiles. The escrow is a reservation in the ledger rather than a balance we hold. |
-| **Play** | **[Forge Worlds](https://github.com/cloudsforge-online/micro-worlds)** | The game platform, not a game — one player profile, one inventory, seasons and entitlements across every title. Four titles: *[Ninety Days After](https://github.com/cloudsforge-online/micro-nda)*, *[Emberkin](https://github.com/cloudsforge-online/micro-emberkin)*, *[Aetherholm](https://github.com/cloudsforge-online/micro-aetherholm)* and *[Tessera](https://github.com/cloudsforge-online/micro-tessera)*. |
-| **Predict** | **[Forge Foresight](https://github.com/cloudsforge-online/micro-foresight)** | Markets on future events, staked and settled in EMBER **on the chain itself**. The service orchestrates; the contract is the custodian. |
-| **Spend** | **[Wallet](https://github.com/cloudsforge-online/micro-wallet)** | Balance, receive, send, convert, history. Presented **inside Forge Hub**, deliberately not as a destination — nobody wakes up wanting to visit a payments product. |
-| **Build** | **[Developer Platform](https://github.com/cloudsforge-online/micro-devplatform)** | Projects, API keys, OAuth clients, webhooks, quotas, and the [SDK and CLI](https://github.com/cloudsforge-online/micro-sdk). |
-| — | **[Forge Hub](https://github.com/cloudsforge-online/micro-hub-api)** | The control centre: dashboard, portfolio, wallet, activity, settings, security. Where you land after signing in, and the container the rest sit inside. It sells nothing. |
+| One account signs into everything, once | **works** | |
+| One wallet, whichever product you came from | **works** | one wallet service, one set of screens |
+| One portfolio — a single number for what you hold | **works** | composed by `hub-api` |
+| One activity history across money, assets and play | **works** | `activity` owns the canonical record |
+| One set of notifications and preferences | **works** | |
+| One operator view | **works** | every topic it consumes now has a producer |
+| One ledger that reconciles against the chain | **works, with a caveat** | driven clean against the live testnet at drift **exactly 0**, and proven to refuse and re-freeze when custody was emptied. The four tests that prove it end-to-end need two checkouts, so CI does not run them |
+| One identity — same profile everywhere | partial | one user row; no profile beyond a handle |
+| Assets made in one product usable in others | partial | the entitlement bridge exists; consumption is starting |
+| The same money earns everywhere, not just spends | partial | **two** surfaces credit a seller today, not one |
+| A third party can build on all of it | partial | the platform and SDK exist; nothing is publicly serving |
 
-### Tessera, the newest thing here
+**Nothing is serving the public.** Services run composed against real databases and the event bus
+delivers across them. Where a product page says a capability is in build, it means exactly that.
 
-A persistent, user-made world you enter in a browser tab: claim ground, fire
-objects out of a prompt, open a place people go to. Land is free and abundant;
-**location** is scarce, because attention is. It is isometric, tile-based and
-painterly rather than 3D, and the design says why in as many words: neither of the
-image models we use emits a mesh, a UV layout or a rig, and *"the substitution is
-not a downgrade"* — a diffusion model outputs finished art, so user content in
-Tessera cannot look bad, because the thing making it is a painter. What is given up
-— first-person immersion, free-look, standing at human scale in a space someone
-built — is named once in the design rather than discovered in week three.
+**Money in flight is being unified.** Shards, an internal unit, are being removed in favour of EMBER
+denominated in **Sparks** — one Spark is 10⁻⁶ EMBER, a display denomination and deliberately never a
+second asset code, because the ledger balances per asset code and a second one would let the two
+halves of the same money drift apart. The rule underneath: **no balance may exist that the chain
+does not back.**
 
-The service binds port 4022, runs **143** tests against a real Postgres, and the
-generation path works end to end.
+---
 
-**The earning half moved, and it moved by deleting code rather than writing it.**
-This page used to say a payout function existed with nothing calling it. That
-function is now *gone* — and its absence is the correction. It had zero callers,
-which read like unfinished work and was actually a hazard: `micro-market` already
-does both halves, so Tessera doing them too would be **a second service releasing
-one payout**. Market credits the seller's `payout_due` at
-[`market/src/orders.ts:339`](https://github.com/cloudsforge-online/micro-market) and
-releases it to `available` from a leased job once `payout_due_at` passes
-(`orders.ts:696`, `jobs.ts:322`). A Tessera release would debit money market had
-already moved, and the ledger would refuse it outright.
+## The full ecosystem
 
-So what was missing was never a payout. It was that **no Tessera listing had ever
-reached micro-market** — nothing could settle, so there was nothing to release.
-`activateListing` is that fix, wired at `tessera/src/index.ts:215`, and a test
-asserts the deleted functions cannot quietly return
-(`tessera/src/economy.test.ts:364`), because an exported function with no callers is
-an invitation. A creator is now paid end to end, by the service that holds the sale.
+Everything that exists, by what it owns. Descriptions are the registry's own, not a summary of them.
 
-## Is it actually one platform?
+### Money and identity — the spine
 
-The test is not whether the products share a logo. It is whether these hold. This
-is the same scorecard the engineering log keeps, reproduced rather than summarised,
-and every row was re-read against source for this revision rather than carried
-forward.
+Spine never appears in a product grid, because an account is not something a person chooses; it is
+something they are given.
 
-| # | One platform means | Today |
+| Service | Owns |
+| --- | --- |
+| `micro-identity` | Accounts, credentials, MFA, sessions, devices, SSO exchange, JWKS, orgs, consents |
+| `micro-ledger` | Chart of accounts, journal, postings, balances projection, reservations, reconciliation |
+| `micro-wallet` | Wallet registry, external links, deposit addresses, withdrawals, conversions, portfolio |
+| `micro-custody` | HD seeds, key generation, encryption envelope, signing policy, treasury pins, export |
+| `micro-settlement` | Treasuries, sweeps, outbound transactions, broadcast, confirmation tracking |
+| `micro-pricing` | Market sources, median oracle, administered prices, rate history, valuation |
+| `micro-billing` | Products, prices, entitlements, subscriptions, usage, invoices, payouts, revenue share |
+| `micro-policy` | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals, freezes |
+| `micro-indexer` | Blocks, transactions, receipts, logs, balances, transfers, reorgs, provider health |
+| `micro-activity` | Canonical activity records, event inbox, feed cursors, feed query API |
+| `micro-notify` | Preferences, templates, notifications, deliveries, digests, webhooks, broadcasts |
+| `micro-analytics` | Pseudonymised product event store, funnels, cohorts, retention, metric definitions |
+
+`micro-analytics` never stores a raw subject. A pseudonym is salted per person and the salt is the
+only thing erasure destroys — a plain `HMAC(user_id, pepper)` would be a pure function of two values
+that both survive, so it could not be erased at all.
+
+### The products
+
+| Sold as | Service | Owns |
 | --- | --- | --- |
-| 1 | One account signs into everything, once. | **True** |
-| 2 | One identity — the same profile and handle everywhere. | Partly — one user row, no profile beyond a handle |
-| 3 | One wallet experience, whichever product you came from. | **True** — one wallet service, one set of screens |
-| 4 | One portfolio — a single number that is the truth about what you hold. | **True** — composed by `hub-api` |
-| 5 | One activity history across money, assets, play and governance. | **True** — `activity` owns the canonical record |
-| 6 | One internal economy — the same money spends **and earns** identically everywhere. | Partly, and less far than this page used to imply — see below |
-| 7 | Assets created in one product are usable in the others. | Partly — the entitlement bridge exists; no title consumes it yet |
-| 8 | One set of notifications, one preference page. | **True** |
-| 9 | One operator view — any question answered from one place. | **True** — and it now has a producer for every topic it consumes |
-| 10 | One financial source of truth that reconciles against the chain. | Partly — driven clean against a live testnet at drift 0, but the credential expires between runs |
-| 11 | A third party can build on all of it. | Partly — the platform and SDK exist; nothing is serving yet |
+| Forge Network | `hearth` | The chain itself: node, mining, RPC, contracts, SDK |
+| Forge Create | `micro-mint` | Token orders, deployment lifecycle, token registry, token pages, contract templates. Real OpenZeppelin contracts, testnet by default |
+| Forge Trade | `micro-trade` | Strategy catalogue, backtests, bots, fills, allocations, fee settlement, performance. **Free until it makes money** — the only charge is a share of a live bot's gains above a high-water mark. Not an exchange |
+| Forge Market | `micro-market` | Listings, offers, auctions, orders, escrow refs, collections, moderation, disputes. The escrow is a **ledger reservation**, not a balance anyone holds |
+| Forge Foresight | `micro-foresight` | Prediction markets: registry and lifecycle, idea pipeline, contract deployment, positions, resolution, fees. Settled **on the chain** — `ForesightMarket.sol` takes stakes from `msg.sender` with no allowlist and pays claims to `msg.sender`, so a position is readable and claimable with the platform switched off |
+| Forge Worlds | `micro-worlds` | Title registry, player profile, inventory, achievements, seasons, entitlement bridge. A platform, not a game |
+| Forge Hub | `micro-hub-api` | The control centre you land on after signing in. It sells nothing |
+| — | `micro-community` | Communities, roles, treasury accounts, proposals, votes, delegations, timelocks |
+| — | `micro-studio` | Brand kits, asset specs, generation jobs, generated assets, generation credits |
 
-Three of these were true when the programme started.
+### The four game titles
 
-**Row 6 moved backwards on inspection last revision, and forwards on this one.**
-The backwards step was honest: this page had said "universal, but little earns them
-yet", when in truth exactly one surface credited a seller — `market/src/orders.ts:324`,
-posting a balanced entry into a seller's `payout_due` — and Tessera, designed to be
-the first, was not it. Its market and ledger clients were imported by nothing, so a
-Tessera sale changed a row's status and moved no money.
-
-That is now fixed, and by subtraction. Tessera's own payout function was **deleted**
-rather than wired, because market already credits *and* releases; a second release
-would have been double payment against a `payout_due` the ledger would refuse. The
-real gap was that no Tessera listing ever reached market. `activateListing`
-(`tessera/src/index.ts:215`) closes it, so a creator is paid by the service that
-holds the sale. Two surfaces now earn, not one — and the second one earns through
-the first rather than beside it. Second, the money itself is mid-change:
-**Shards are being replaced estate-wide by EMBER, denominated in Sparks**, and the
-counts moved on both sides since the last revision. `'SHARD'` is still a live asset
-code in **19** repositories — down from 21 — and still in the shared contract
-(`contracts/packages/chain/src/index.ts:19`), which is the one that matters, because
-every service reads its asset codes from there. "Sparks" has gone from two files to
-**14 across three repositories**, and the third is the interesting one: it is no
-longer only Tessera's word. `notify` now speaks it in `catalogue.ts` and
-`templates.ts`, which means the denomination has reached the surface that writes to
-users rather than staying inside the service that invented it.
-
-Sparks is a **display denomination, never a second asset code** — a Spark is 10⁻⁶
-EMBER, and `tessera/src/sparks.test.ts` greps the source to keep `'SPARK'` from ever
-becoming an `assetCode`. That constraint is not fussiness: the ledger's balancing
-invariant is enforced *per asset code* by trigger
-(`ledger/src/migrations.ts:302-313`), so a second code would let the two halves of
-the same money drift apart with nothing able to notice. The rule underneath all of
-it is the owner's: **no balance may exist that the chain does not back.** Shards sit
-outside that guarantee by construction, which is the whole reason they are being
-removed rather than fixed.
-
-**Row 10 moved, and the reason is worth reading.** Reconciliation used to compare
-the ledger against itself — vacuous, and worse than vacuous, because a self-
-referential run recorded `clean`, and `clean` is the status that *lifts* a freeze.
-The check that could not fail outranked the one that could. Three things landed
-since: the ledger's migration 11 makes a self-referential run **a database error**,
-not a service-level guard (`ledger/src/migrations.ts:755` — *"comparing this ledger
-against itself proves nothing about the chain"*); the indexer serves a
-confirmed-only custody total that **refuses a partial sum**, erroring rather than
-returning a smaller number if a single address is unreadable
-(`indexer/src/custody.ts:293`); and the ledger's fifteen-minute job now actually
-makes the call (`ledger/src/jobs.ts:251`).
-
-**And it has now run clean against a real chain, once.** A live EMBER testnet was
-stood up inside the estate — Hearth's own testnet compose unmodified, chain id 7412,
-a CPU miner on the host — and the loop was driven end to end: `observed_source =
-'indexer'`, **drift of exactly 0 over 31,000,000,000,000,000,000 wei**, and the
-freeze lifted. Then the opposite direction, which matters more: with the custody set
-emptied the route refused with `no_custody_addresses` rather than answering zero, the
-ledger recorded `unavailable`, and the freeze came back. Restored, it went clean
-again. The three seed balances are 7, 11 and 13 EMBER — deliberately distinct and
-non-round, so a summing bug cannot balance by luck.
-
-It stays **Partly** for a narrower and sharper reason than before. The service
-credential lives **600 seconds** and the reconciliation job runs every **900**, so
-the call authenticates once at bootstrap and never again — and the resulting freeze
-is byte-identical to "the chain could not be observed". A guarantee that fails closed
-for the wrong reason still looks exactly like one working correctly, which is the
-same defect class this whole row exists to kill. That is being fixed by having the
-ledger exchange the long-lived credential it already receives, the way six other
-services already do. **Failing closed is not the same as working**, and a frozen
-asset remains the correct behaviour rather than the finished one.
-
-**Row 9 stayed True and got its evidence.** The operator console's tamper-evident
-audit mirror was a consumer with no producer — it subscribed to `*.audit.recorded`
-topics nothing in the estate ever emitted, so the mirror was structurally always
-empty. It now consumes 31 existing domain topics
-(`contracts/packages/events/src/audit.ts`), and every one of the 31 has a real emit
-site in a real service.
-
-## Why the empty rooms are a design problem
-
-A parimutuel market with one bettor is a refund machine. Zero listings begets zero
-buyers begets zero listings. A season with an unfunded reward budget cannot pay a
-single reward. **Someone has to move first, and the only party with a reason to is
-the platform.**
-
-So there is an **engagement treasury**: bounded, disclosed, and made of ordinary
-double-entry ledger accounts rather than a service holding money. Two things were
-refused outright in designing it. Synthetic bids, ghost bettors and invisible house
-positions — *"it is the one form of this that costs nothing and it is fraud"*. And a
-consensus carve-out, a share of early block rewards, because the public copy says
-**no premine** and it is going to keep saying it. Every unit the platform puts into
-a room is labelled as the platform's, on the surface where users see it. Raising a
-cap takes two operators and a fresh approval the schema itself checks for; lowering
-one takes one, because a cap the capped programme can quietly raise is not a cap.
-
-## What we will not do
-
-Refusals, not gaps on a roadmap.
-
-- **We are not an exchange.** No order book, no market making, no custody of
-  anyone else's trading pairs. The other side of that line is a different company
-  with a different regulatory posture.
-- **A game never sells an advantage.** Cosmetics and seasons are entitlements. No
-  creature is a token, and nothing you buy changes a stat.
-- **No premine, and no consensus carve-out to fund the platform's own marketing.**
-  See above; it was proposed and rejected.
-- **Product analytics is ours and pseudonymous by construction, never a
-  third-party tag.** Our frontend CI fails the build if a Google, Segment, Hotjar
-  or Mixpanel tag appears in a bundle.
-- **No service holds money.** Value moves as a double-entry ledger posting, and
-  the ledger's *database* refuses an unbalanced journal — not the service, the
-  database, so it holds even against a caller with a connection.
-
-## How this is built
-
-One repository per deployable, each with its own database and no access to
-anybody else's. Services talk over HTTP typed by published contracts, and events
-go Postgres outbox → signed HTTP → inbox. There is no message broker and no
-shared schema.
-
-Every repository runs the same reusable CI: typecheck, its own suite against a
-real Postgres — a suite that *skips* its database tests fails the build — the
-estate rules that repository walls used to enforce for free, a container that
-must boot and answer `/livez`, and a secret-hygiene sweep.
-
-**Some invariants belong to the estate and to no repository in it**, so they run
-across a full clone of all of it rather than inside any one repo. There are four:
-every service must agree on the ledger account types it names; every registered
-auth scope must be demanded by a gate somewhere, and every gate must demand a
-registered one; every event topic must have both a producer and a consumer that
-agree it exists; and no route in the estate may return private key material — a
-body scan over roughly 498 routes in 29 servers. **Each of the four carries a
-canary: a deliberately broken case that the check must go red on.** A check that
-cannot fail is not a check, which is the same lesson row 10 taught the hard way.
-
-Frontends used to have tests that never rendered anything — *"there is no DOM in
-this suite on purpose"*. That position has been abandoned. Fourteen of the sixteen
-frontends now render: six drive a real headless Chromium, eight use an in-process
-DOM, and the catalogue behind it is 318 browser scenarios decomposed from the
-twenty-one user journeys. `admin-web` and `hub-web` still have neither and are the
-two exceptions, which is why the number is fourteen and not sixteen.
-
-The engineering log is public to the people who work here: twenty-seven documents
-covering the architecture and security decisions, the domain model, the testing
-strategy, and a build ledger that records what is actually true rather than what
-was planned — including the defects found on the way and the ones deliberately
-left open. The newest is the design for a **self-custody wallet** across desktop,
-mobile and the browser extensions — the wallet CloudsForge does not hold the keys
-to, which is what makes "a user can always leave with their assets" a right rather
-than a favour. It is a design and not yet a line of code, and it is listed here on
-the same terms as everything else on this page.
-
-### Who wrote it
-
-**The code in this estate was written by Claude Opus 5 and Claude Fable 5, under
-human direction and review.** That includes the services, the frontends, the
-migrations, the test suites and these documents. It is said here rather than
-inferred, and every repository repeats it in its own README.
-
-**The art was generated too, and by a named model rather than an unnamed one.**
-The shipped set is **FLUX 2 Pro** (`flux-2-pro`) — 98 assets in `micro-brand`, 137
-in `micro-emberkin-assets`, 101 in `micro-aetherholm-assets`, and Tessera's world
-plates. In all three the manifest entry count and the PNG count are equal, which
-is the check that catches an asset added without a record or a record without art. A second full set was generated with **Qwen-Image 2512**
-(`qwen-image-2512`) to compare against it; those live under `candidates/` in each
-asset repository and are never shipped, so the comparison stays honest and the
-reference stays byte-identical. Which model won, and on what criteria, is written
-up in `24-asset-model-comparison.md` rather than asserted here.
-
-The reason to record any of this is the same reason row 6 says only one surface
-earns: **a reader is owed the provenance of what they are looking at**, and a
-codebase that does not say how it was made is making a claim by omission.
-
-## Every repository, and what it owns
-
-One repository per deployable. Each service owns exactly one database and reads no other — the
-answer to needing another service's data is an HTTP call typed by a published contract, never a
-second connection string, and CI greps for that.
-
-> **Every `micro-` link below is internal.** Those repositories are private, so they open for
-> members of this organisation and 404 for everybody else — the 404 means "not yours to read", not
-> "not there". The public ones are [`hearth`](https://github.com/cloudsforge-online/hearth) and the
-> predecessors at the bottom.
-
-### The six products
-
-| Repository | Scope |
+| Service | Owns |
 | --- | --- |
-| [`hearth`](https://github.com/cloudsforge-online/hearth) | **Forge Network.** The chain itself — Homefire PoW, UTXO + Ed25519, node, miner, EVM layer and contracts. **Public**, and takes outside contributors. |
-| [`micro-trade`](https://github.com/cloudsforge-online/micro-trade) | **Forge Trade.** The strategy catalogue, backtests, bots, fills and fee settlement. A backtest replays byte-identically from a seed. |
-| [`micro-mint`](https://github.com/cloudsforge-online/micro-mint) | **Forge Create.** Token orders, the deployment lifecycle, the token registry and contract templates. A deploy leaves the request; nothing is held for three minutes. |
-| [`micro-market`](https://github.com/cloudsforge-online/micro-market) | **Forge Market.** Listings, offers, bids, auctions, orders, escrow references, collections, moderation and disputes. Escrow is a ledger reservation, never a balance held here — and its settlement is the one place in the estate that credits a seller today. |
-| [`micro-worlds`](https://github.com/cloudsforge-online/micro-worlds) | **Forge Worlds.** The title registry, shared player profile, inventory, achievements, seasons and the entitlement bridge — the platform the games sit on, not a game. |
-| [`micro-foresight`](https://github.com/cloudsforge-online/micro-foresight) | **Forge Foresight.** Markets, the AI idea pipeline with cited provenance, on-chain settlement and disputes. The service holds no stake. |
+| `micro-nda` | *Ninety Days After*: worlds, tiles, players, resolution engine, communes, objectives |
+| `micro-emberkin` | *Kindred*: authoritative saves, campaign, party, catches, Resonance, battle engine |
+| `micro-aetherholm` | World state, cities, economy, fleets, battles, seasons, the chronicle, the title contract |
+| `micro-tessera` | Wards, parcels, claims, objects, placements, the Kiln, presence, the title contract, authorship anchoring |
 
-### The titles inside Forge Worlds
+### Aggregators and the developer surface
 
-A title is not a product. It registers with [`micro-worlds`](https://github.com/cloudsforge-online/micro-worlds), shares one player profile, and sells
-nothing but cosmetics and seasons.
-
-| Repository | Scope |
+| Service | Owns |
 | --- | --- |
-| [`micro-nda`](https://github.com/cloudsforge-online/micro-nda) | *Ninety Days After*: the shared map, tiles, players, actions and the resolution engine. Ported so a day resolves byte-identically to its ancestor. |
-| [`micro-emberkin`](https://github.com/cloudsforge-online/micro-emberkin) | *Emberkin*: the monster-collecting RPG. Its ported RNG reproduces the original bit-for-bit, so recorded battles replay exactly. |
-| [`micro-aetherholm`](https://github.com/cloudsforge-online/micro-aetherholm) | *Aetherholm*: a sky-island strategy MMO — mine Aether, command airship fleets, contest an archipelago that seals when the season ends. The first title designed inside the standards rather than migrated up to them, and the first to implement the provisioning contract Worlds calls. |
-| [`micro-tessera`](https://github.com/cloudsforge-online/micro-tessera) | *Tessera*: a persistent, user-made isometric world in a browser tab — wards, parcels, the Kiln that fires an object out of a prompt, venues and bookings, listings and a ward's government. Binds 4022. Serves exactly the two routes Worlds actually calls, because a service that can serve a route Worlds does not call has invented an integration. |
-
-### The control centre, the wallet and the developer surface
-
-Customer-facing, but not products — the vision document is explicit that an account is not
-something a person chooses, and that Forge Pay stopped being a destination because nobody wakes
-up wanting to visit a payments product.
-
-| Repository | Scope |
-| --- | --- |
-| [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | **Forge Hub**'s BFF: dashboard aggregation, portfolio composition, unified search and suggested actions. One dead upstream costs one tile, not the dashboard. |
-| [`micro-wallet`](https://github.com/cloudsforge-online/micro-wallet) | Wallet registry, deposit addresses, withdrawals, conversions, transfers and the portfolio read. Holds no balances; composes ledger, custody and indexer. The engine under Hub's wallet tab. |
-| [`micro-devplatform`](https://github.com/cloudsforge-online/micro-devplatform) | Developer organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. Its database refuses a fast hash, and a quota the quota'd party can raise is not a quota. |
-
-### The spine
-
-Never a product, and never in a product grid as a peer.
-
-| Repository | Scope |
-| --- | --- |
-| [`micro-identity`](https://github.com/cloudsforge-online/micro-identity) | Accounts, credentials, MFA, sessions, devices, refresh families, signing keys and JWKS. The root of trust. |
-| [`micro-ledger`](https://github.com/cloudsforge-online/micro-ledger) | Double-entry accounting: chart of accounts, journal entries, postings, balances, reservations, reconciliation. Its database refuses an unbalanced journal — and, since migration 11, refuses to reconcile an on-chain asset against itself. |
-| [`micro-custody`](https://github.com/cloudsforge-online/micro-custody) | HD seeds, key generation, the encryption envelope, signing policy and key lifecycle. It has no reveal endpoint, by deletion rather than by guard. |
-| [`micro-settlement`](https://github.com/cloudsforge-online/micro-settlement) | Treasuries, sweeps, outbound transaction building, broadcast and confirmation tracking. The lease names the nonce, not the row. |
-| [`micro-indexer`](https://github.com/cloudsforge-online/micro-indexer) | Blocks, transactions, receipts, logs, address activity, balances, reorgs and provider health. Reorg safety is the whole job — and its custody total refuses a partial sum rather than returning a smaller number. |
-| [`micro-pricing`](https://github.com/cloudsforge-online/micro-pricing) | Market sources, the median oracle, administered prices, spread policy and rate history. A rate that cannot be quoted is an error, never a default. |
-| [`micro-billing`](https://github.com/cloudsforge-online/micro-billing) | Products, prices, entitlements, subscriptions, usage, invoices, refunds, creator payouts and the engagement treasury's fee recycle. |
-| [`micro-policy`](https://github.com/cloudsforge-online/micro-policy) | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals and freezes. It decides, callers enforce, and the fail-closed/fail-open split cannot drift. |
-| [`micro-activity`](https://github.com/cloudsforge-online/micro-activity) | The canonical activity record and the unified feed, written only from the bus. |
-| [`micro-notify`](https://github.com/cloudsforge-online/micro-notify) | Preferences, templates, notifications, deliveries, digests and developer webhooks. You cannot opt out of being told your key left. |
-| [`micro-community`](https://github.com/cloudsforge-online/micro-community) | Communities, membership, proposals, votes, delegations, timelocks and treasury executions — governance across products rather than a product of its own. A treasury is a ledger account. |
-| [`micro-admin-api`](https://github.com/cloudsforge-online/micro-admin-api) | The operator BFF: cross-service actions, approval queues, the engagement treasury's caps, and a tamper-evident audit mirror fed by 31 real domain topics. |
-| [`micro-studio`](https://github.com/cloudsforge-online/micro-studio) | Asset generation as a service on FLUX 2 Pro: brand kits, asset specs, leased generation jobs and assets whose provenance is complete. Spend is capped by a conditional UPDATE before the model call, not by a prompt. |
-| [`micro-analytics`](https://github.com/cloudsforge-online/micro-analytics) | A pseudonymised product event store, funnels, cohorts and retention. A raw subject cannot be stored, even with the service bypassed. |
-
-### The things people look at
-
-Sixteen frontends. Fourteen now render in a test; the two that do not are named in the table.
-
-| Repository | Scope |
-| --- | --- |
-| [`micro-site`](https://github.com/cloudsforge-online/micro-site) | The marketing site. No number on it that is not checkable against something real. |
-| [`micro-hub-web`](https://github.com/cloudsforge-online/micro-hub-web) | Forge Hub: dashboard, portfolio, wallet, activity, security, entitlements. **Still has no DOM in its suite** — one of the two frontends browser coverage has not reached. |
-| [`micro-market-web`](https://github.com/cloudsforge-online/micro-market-web) | Forge Market's storefront, listings, orders and disputes. |
-| [`micro-foresight-web`](https://github.com/cloudsforge-online/micro-foresight-web) | Forge Foresight's public markets. It recomputes the question hash in the browser. |
-| [`micro-foresight-admin-web`](https://github.com/cloudsforge-online/micro-foresight-admin-web) | The Foresight operator console, its own bundle by design. |
-| [`micro-emberkin-web`](https://github.com/cloudsforge-online/micro-emberkin-web) | The Emberkin game client. It deletes the battle engine it inherited: a client that can resolve a battle can lie about one. |
-| [`micro-aetherholm-web`](https://github.com/cloudsforge-online/micro-aetherholm-web) | The Aetherholm game client: islands, fleets, the archipelago and the season clock. Drives a real headless Chromium in its suite. |
-| [`micro-tessera-web`](https://github.com/cloudsforge-online/micro-tessera-web) | The Tessera client: the isometric renderer, the Kiln, wards and parcels. It has a render budget its tests enforce, and it states plainly which routes the service does not serve yet rather than rendering an empty screen. |
-| [`micro-status-web`](https://github.com/cloudsforge-online/micro-status-web) | The public status page. Green-on-unknown is structurally unreachable. |
-| [`micro-admin-web`](https://github.com/cloudsforge-online/micro-admin-web) | The operator console: approvals, the action catalogue, the engagement treasury's caps, the audit log and its chain verification, flags and broadcasts. It never calls the audit-write route — a browser holds neither the signing secret nor the scope. **The other frontend with no DOM in its suite.** |
-| [`micro-mint-web`](https://github.com/cloudsforge-online/micro-mint-web) | Forge Create's console: the catalogue, token orders, payment and the deploy lifecycle. Deploy answers 202 and reaches no chain, so nothing renders "deployed" from a mutation result. |
-| [`micro-trade-web`](https://github.com/cloudsforge-online/micro-trade-web) | Forge Trade: strategies, backtests, bots, fills and settlements. Draws the equity curve against buy-and-hold, because a strategy curve with nothing to compare it to is a number with no scale. |
-| [`micro-worlds-web`](https://github.com/cloudsforge-online/micro-worlds-web) | Forge Worlds' surface: the title registry, the shared player profile, inventory, seasons and provisions. States the title gap plainly rather than behind a spinner. |
-| [`micro-explorer-web`](https://github.com/cloudsforge-online/micro-explorer-web) | The chain explorer: blocks, transactions, addresses and token state, read anonymously from the index. It states the head every depth was measured against, and never says a thing is final. |
-| [`micro-network-site`](https://github.com/cloudsforge-online/micro-network-site) | Forge Network's front door: what Hearth is, how to run a node, the state of the network, and the faucet. Every figure is fetched or absent — there is no path from an absence to a digit, no price and no yield. |
-| [`micro-devportal-web`](https://github.com/cloudsforge-online/micro-devportal-web) | The Developer Platform console: organisations, projects, API keys, OAuth clients, webhooks, usage and quotas. A key is shown once, and the screen says so before the request is made. |
+| `micro-hub-api` | Forge Hub BFF: dashboard aggregation, portfolio composition, search, saved views |
+| `micro-admin-api` | Operator BFF: cross-service actions, approvals, audit mirror, flags, broadcasts |
+| `micro-devplatform` | Developer orgs, projects, API keys, OAuth clients, webhooks, quotas, directory |
 
 ### Operations
 
-| Repository | Scope |
+| Service | Owns |
 | --- | --- |
-| [`micro-beacon`](https://github.com/cloudsforge-online/micro-beacon) | Synthetic probes, journeys, incidents, SLOs and error budgets. **The release gate** — an unknown refuses, and it declares no journey it cannot actually run. |
-| [`micro-lantern`](https://github.com/cloudsforge-online/micro-lantern) | Log triage: OTLP ingest, error grouping, browser errors and trace lookup. Credentials are scrubbed before anything is stored. |
-| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The EMBER faucet. It refuses to start against a chain that is not the testnet — and there is no public testnet yet, so it has nothing to point at. |
-| [`micro-deploy`](https://github.com/cloudsforge-online/micro-deploy) | The composed estate, the telemetry stack, the gateway configuration, the service-token grants and the public API route map. |
-| [`micro-org`](https://github.com/cloudsforge-online/micro-org) | The reusable CI every repository calls, the four estate-wide invariants and their canaries, the contract-compatibility checker, `cfctl` and the README template. |
+| `micro-lantern` | Log triage: OTLP push ingest, fingerprinting, browser errors and RUM |
+| `micro-beacon` | Synthetic monitoring, journeys, incidents, SLOs. **The release gate** |
+| `micro-faucet` | Testnet EMBER faucet |
+| `micro-conformance` | The characterisation corpus, and the estate-wide sweeps run against every repository |
 
-### Libraries and machinery
+### The sixteen frontends
 
-| Repository | Scope |
+| Frontend | Serves |
 | --- | --- |
-| [`micro-runtime`](https://github.com/cloudsforge-online/micro-runtime) | `@cloudsforge/lifecycle`, `-http`, `-jobs`, `-db`, `-auth`, `-telemetry`. The six copies of the same file that used to drift. |
-| [`micro-contracts`](https://github.com/cloudsforge-online/micro-contracts) | The typed contracts services agree on, split by bounded context, at 1.0.0. `-chain` is exact-pinned, because a skew credits money at the wrong depth. |
-| [`micro-ui`](https://github.com/cloudsforge-online/micro-ui) | The design system: tokens, chrome, the product accents that can actually be told apart, and the validated chart palette. |
-| [`micro-sdk`](https://github.com/cloudsforge-online/micro-sdk) | The public developer SDK and CLI. Zero runtime dependencies; every route cites the line that serves it. |
-| [`micro-service-template`](https://github.com/cloudsforge-online/micro-service-template) | A working service skeleton with every runtime library wired. |
-| [`micro-web-template`](https://github.com/cloudsforge-online/micro-web-template) | The same for a frontend, including the guards a frontend keeps forgetting, and an honest 404. |
+| `micro-hub-web` | Forge Hub: dashboard, portfolio, wallet, activity, settings, security, entitlements |
+| `micro-site` | Marketing site |
+| `micro-admin-web` | Operator console |
+| `micro-mint-web` | Forge Create |
+| `micro-trade-web` | Forge Trade |
+| `micro-market-web` | Forge Market |
+| `micro-worlds-web` | Forge Worlds client |
+| `micro-foresight-web` | Browse, market detail with cited sources, stake, portfolio, claim |
+| `micro-foresight-admin-web` | Operator panel: idea queue, open/close/resolve/void, disputes |
+| `micro-emberkin-web` | The Kindred Three.js client, on estate conventions, with the generated art |
+| `micro-aetherholm-web` | Archipelago map, city view, fleet control, battle reports, chronicle browser |
+| `micro-tessera-web` | Isometric renderer, build and place tools, the Kiln, the ward map, Workshop pages |
+| `micro-explorer-web` | Block explorer |
+| `micro-network-site` | Forge Network marketing |
+| `micro-devportal-web` | Developer console and docs |
+| `micro-status-web` | Public status page, from Beacon's redacted projection |
 
-### Assets and record
+### Shared code and machinery
 
-Every asset in every one of these is AI-generated, and says so — in the repository, on each manifest
-entry, and in the licence string the asset itself carries.
-
-| Repository | Scope |
+| Repository | Owns |
 | --- | --- |
-| [`micro-brand`](https://github.com/cloudsforge-online/micro-brand) | 93 generated brand assets across 14 surfaces with per-asset provenance, and the numeric ground normaliser that makes them one family. |
-| [`micro-emberkin-assets`](https://github.com/cloudsforge-online/micro-emberkin-assets) | 83 generated images and 51 derivatives for Emberkin, prompted from the game's own visual spec. |
-| [`micro-aetherholm-assets`](https://github.com/cloudsforge-online/micro-aetherholm-assets) | 96 generated images and 5 derivatives for Aetherholm, on FLUX 2 Pro. |
-| [`micro-tessera-assets`](https://github.com/cloudsforge-online/micro-tessera-assets) | The Tessera art set: 392 assets specified — 288 generated, 104 derived — produced by **both** FLUX 2 Pro and Qwen-Image 2512 and judged against criteria fixed in `COMPARISON.md` **before either set existed**. The generation run is still going. |
-| [`micro-docs`](https://github.com/cloudsforge-online/micro-docs) | Twenty-five documents: the architecture and security decisions, the domain model, the testing strategy, the browser-journey catalogue, the engagement treasury, Aetherholm, Tessera, and a build ledger recording what is actually true. |
-| [`micro-conformance`](https://github.com/cloudsforge-online/micro-conformance) | A recorded corpus of real interactions — the behavioural baseline a successor has to match. |
-| [`.github`](https://github.com/cloudsforge-online/.github) | This page. |
+| `micro-contracts` | Typed contracts per bounded context — auth, money, chain, market, worlds, create, events, devplatform |
+| `micro-runtime` | Telemetry, HTTP, jobs, auth, database, lifecycle and policy-client packages |
+| `micro-ui` | Design system, tokens, chrome, the surface registry and the validated chart layer |
+| `micro-sdk` | The public SDK and CLI, generated from the public OpenAPI description |
+| `micro-org` | Shared CI, the repository registry, and the four estate-wide invariants |
+| `micro-deploy` | Compose, Kubernetes manifests, gateway configuration, telemetry stack, release manifests |
+| `micro-docs` | The engineering log |
+| `micro-brand`, `micro-emberkin-assets`, `micro-aetherholm-assets`, `micro-tessera-assets` | Generated art and its provenance |
+| `micro-service-template`, `micro-web-template` | What `cfctl new` produces |
 
-### Predecessors
+---
 
-[`platform`](https://github.com/cloudsforge-online/platform), [`forge-pay`](https://github.com/cloudsforge-online/forge-pay), [`forge-keyvault`](https://github.com/cloudsforge-online/forge-keyvault), [`forge-mint`](https://github.com/cloudsforge-online/forge-mint), [`crucible`](https://github.com/cloudsforge-online/crucible), [`ninety-days-after`](https://github.com/cloudsforge-online/ninety-days-after),
-[`shared-libs`](https://github.com/cloudsforge-online/shared-libs), [`asset-forge`](https://github.com/cloudsforge-online/asset-forge), [`stack`](https://github.com/cloudsforge-online/stack). **Nothing was deleted, archived or renamed.** They remain
-deployable and are the rollback target; the estate above was built beside them.
+## Tessera
 
-**That is all seventy repositories in this organisation** — nine predecessors, `hearth`, this one,
-and fifty-nine `micro-` repositories. Every one is listed above exactly once.
+The newest title: a persistent, user-made world in a browser tab. Claim ground, generate objects
+from a prompt, open a place people visit. Land is free and abundant; **location** is scarce, because
+attention is. Isometric and painterly rather than 3D — neither image model in use emits a mesh, a UV
+layout or a rig, and the design says so plainly instead of discovering it later.
 
-## Security
+**151 tests** against a real Postgres. Venue bookings reserve EMBER through the ledger, with the
+booking's release enforced by a schema constraint so money cannot be stranded, and overlapping
+bookings refused by a GiST exclusion constraint rather than by a handler.
 
-**Hearth is money, and a consensus bug is not a defect report — it is a loss of funds.** The
-disclosure policy lives with the chain:
-[SECURITY.md](https://github.com/cloudsforge-online/hearth/blob/main/SECURITY.md). It covers the
-whole estate, not only the node.
+---
 
-Please report privately and give us time to fix it. Do not open a public issue for anything
-touching consensus, custody, the ledger, or authentication.
+## The art
 
-What we have already decided, so you know what you are looking at:
+**728 images ship**, every one generated with **FLUX 2 Pro** and recorded in a manifest with the
+prompt that produced it, the model, the delivered dimensions and the cost.
 
-- **The custody service has no key-reveal endpoint.** Not guarded — deleted. There is no
-  authenticated path to a private key.
-- **Signing shapes are closed.** A custody key may produce a value transfer or a contract creation
-  and nothing else; widening that would make the key a signing oracle.
-- **Money invariants live in the database.** The ledger's deferred constraint refuses an unbalanced
-  journal against a caller holding a connection, not merely against a caller using the service.
-- **No route in the estate returns private key material**, and that is a check across all of it
-  rather than a rule each repository is trusted to keep — a body scan over roughly 498 routes in
-  29 servers, with a canary proving the scan can still go red.
-- **The first admin is a manual database update**, deliberately. A service that can mint its own
-  first administrator is a service whose compromise grants the estate.
+| | |
+| --- | --- |
+| `micro-brand` | 98 |
+| `micro-emberkin-assets` | 137 |
+| `micro-aetherholm-assets` | 101 |
+| `micro-tessera-assets` | 392 — of which 104 are derived rather than generated |
 
-## The stack
+A second full set of **741 images** was generated with **Qwen-Image 2512** to compare against it.
+Those live under `candidates/` in each repository and never ship, so the reference stays
+byte-identical and the comparison stays honest. Criteria were fixed in writing before either set
+existed.
 
-TypeScript on Node 22, ESM, strict — `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`
-everywhere. Postgres per service. `node:test` and nothing else. React 19 and Vite for the
-frontends, nginx for serving them, Traefik at the edge, and OpenTelemetry into Prometheus, Tempo,
-Loki and Grafana.
+Generated originals carry C2PA provenance metadata written by the model, so their origin is
+checkable rather than merely claimed.
 
-No message broker. No shared database. No ORM. Money is `bigint`; a float anywhere near an amount
-is a defect.
+---
 
-## Where to start reading
+## Licence
 
-- **The chain** — [`hearth`](https://github.com/cloudsforge-online/hearth) is public and is where
-  the interesting cryptography is.
-- **The reasoning** — `micro-docs` carries the architecture and security decisions with the
-  alternatives that were rejected, and a build ledger recording the defects found on the way,
-  including the ones deliberately left open.
-- **The shape of a service** — `micro-service-template` is a working skeleton; every service is cut
-  from it.
+Code is **MIT**. Artwork is **CC BY 4.0** — reuse it, remix it, ship it, with attribution.
 
-## Status
+**Trademarks are reserved.** The CloudsForge, Forge, Hearth and EMBER names, logos and wordmarks are
+excluded from both grants. The art is permissive on purpose; a brand mark works by telling people
+who made something, and a mark anybody may apply to anything has stopped doing its only job.
 
-**Pre-launch, and honest about it.** Fifty-nine `micro-` repositories plus the chain, carrying
-617 test files, every service suite running against a real Postgres and failing the build if it
-skips them.
+---
 
-**We cannot currently tell you anything about CI, and will not pretend otherwise.** GitHub Actions
-is billing-blocked across this organisation. Runs fail in about four seconds having executed zero
-steps, and produce no logs — which is not a red suite, it is no suite. **Everything landed today is
-verified locally and unverified remotely**, and any statement on this page about a check passing
-means it passed on a developer's machine. When billing is restored the history will show the
-four-second failures, because **red runs are never deleted here** — the record of what failed is the
-only evidence a suite ever had teeth.
+## Provenance
 
-**Hearth has no testnet and no mainnet.** Its own map is explicit: "there is no live endpoint, no
-testnet and no mainnet". Consensus on the account model is merged and blocks are produced,
-validated and reorged across real nodes — but the three-node stack binds `127.0.0.1`, nothing
-routes it, and no genesis outlives a `docker compose down -v`. This page once said "Hearth runs on
-a testnet", which was wrong.
+The code was written by **Claude Opus 5** and **Claude Fable 5**, assets generated with **FLUX 2
+Pro**, under human direction and review. Every repository says so in its own README.
 
-**Two mining claims this page used to make are retracted, because Hearth's own documents retract
-them.** The proof-of-work is *not* non-outsourceable: the private key is used after a nonce wins
-rather than inside the hash loop, so a pool operator can hand out work under its own public key,
-collect nonces, and sign the blocks itself — `docs/mining.md` says so in as many words, and calls
-it deliberately open rather than overlooked. And ASIC-resistance rests on a production scratchpad
-of around 2 GiB; what ships today is the development size, 8,192 words. Neither is a defect being
-hidden. Both were this page describing an intention as a property.
+Nothing here is claimed to be hand-written that is not, and nothing is claimed to work that has not
+been tested.
 
-**The chain-backed solvency loop has run clean against a real chain, and still freezes between
-runs.** The ledger asks the indexer for a confirmed-only custody total every fifteen minutes. A
-live EMBER testnet now exists inside the estate — Hearth's own testnet compose, chain id 7412, a
-CPU miner on the host — and against it the loop reconciled at **drift of exactly 0**, then
-correctly refused and re-froze when the custody set was emptied, then went clean again once it was
-restored. Both directions, not just the happy one. It still freezes in steady state for a narrower
-reason: the service credential lives 600 seconds and the job runs every 900, so it authenticates
-once at bootstrap and never again — and that freeze is byte-identical to "the chain could not be
-observed", which is the same indistinguishability problem the loop exists to solve. The service
-shouts at boot rather than letting it be discovered by noticing an absence. Correct behaviour;
-not finished behaviour.
+---
 
-**Nothing is serving the public yet, and almost nothing is deployed.** Services run composed
-against real databases, and the estate's event bus delivers across them — the first cross-service
-event took six defects that no single repository's suite could see. The rest exist as code that
-passes its own tests. Where a product page says a capability is in build, it means exactly that.
+## Where to start
 
-**The estate is open source.** All sixty-one active repositories are public — the services, the
-frontends, the contracts, the libraries, the asset sets and this engineering log. Hearth takes
-outside contributors and is where the interesting cryptography lives. The nine pre-migration
-repositories are archived read-only and kept private; each one's successor is named in its README,
-and the mapping is in `03-repository-responsibilities.md`.
+- **[micro-docs](https://github.com/cloudsforge-online/micro-docs)** — 27 documents: architecture
+  and security decisions, the domain model, the testing strategy, and a build ledger that records
+  what is actually true rather than what was planned, including defects found on the way and the
+  ones deliberately left open.
+- **[hearth](https://github.com/cloudsforge-online/hearth)** — the chain. Public, takes outside
+  contributors, and where the cryptography is.
+- **[micro-org](https://github.com/cloudsforge-online/micro-org)** — the shared CI and the four
+  estate-wide invariants, each with its canary.
 
-Being public was not only a disclosure decision. It is also what pays for CI: public repositories
-get unrestricted Actions minutes, so every repository's suite runs against a real Postgres on every
-push, for free, permanently. Before the switch, every commit in every repository's full history was
-scanned for key material. The only matches were deliberate ones — a canary string named
-`sk-this-must-never-appear`, PEM headers used as inputs to tests asserting they are *refused*, and
-a development database password the estate had already named `estate-only-not-a-real-password`.
+---
 
 Nothing here promises a return. Backtests describe the past. Mining yields depend on difficulty. A
 parimutuel payout depends on the pool at settlement. A coin with no mainnet has no price.
