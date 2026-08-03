@@ -286,6 +286,27 @@ strategy, and a build ledger that records what is actually true rather than what
 was planned — including the defects found on the way and the ones deliberately
 left open.
 
+### Who wrote it
+
+**The code in this estate was written by Claude Opus 5 and Claude Fable 5, under
+human direction and review.** That includes the services, the frontends, the
+migrations, the test suites and these documents. It is said here rather than
+inferred, and every repository repeats it in its own README.
+
+**The art was generated too, and by a named model rather than an unnamed one.**
+The shipped set is **FLUX 2 Pro** (`flux-2-pro`) — 98 assets in `micro-brand`, 137
+in `micro-emberkin-assets`, 101 in `micro-aetherholm-assets`, and Tessera's world
+plates. In all three the manifest entry count and the PNG count are equal, which
+is the check that catches an asset added without a record or a record without art. A second full set was generated with **Qwen-Image 2512**
+(`qwen-image-2512`) to compare against it; those live under `candidates/` in each
+asset repository and are never shipped, so the comparison stays honest and the
+reference stays byte-identical. Which model won, and on what criteria, is written
+up in `24-asset-model-comparison.md` rather than asserted here.
+
+The reason to record any of this is the same reason row 6 says only one surface
+earns: **a reader is owed the provenance of what they are looking at**, and a
+codebase that does not say how it was made is making a claim by omission.
+
 ## Every repository, and what it owns
 
 One repository per deployable. Each service owns exactly one database and reads no other — the
@@ -493,11 +514,17 @@ it deliberately open rather than overlooked. And ASIC-resistance rests on a prod
 of around 2 GiB; what ships today is the development size, 8,192 words. Neither is a defect being
 hidden. Both were this page describing an intention as a property.
 
-**The chain-backed solvency loop is wired and frozen, on purpose.** The ledger asks the indexer for
-a confirmed-only custody total every fifteen minutes; no deployment yet holds the credential to
-answer, so EMBER reconciliation records `unavailable`, fails, and freezes withdrawals for that
-asset. The service shouts about it at boot rather than letting it be discovered by noticing an
-absence. That is the correct behaviour and it is not the finished one.
+**The chain-backed solvency loop has run clean against a real chain, and still freezes between
+runs.** The ledger asks the indexer for a confirmed-only custody total every fifteen minutes. A
+live EMBER testnet now exists inside the estate — Hearth's own testnet compose, chain id 7412, a
+CPU miner on the host — and against it the loop reconciled at **drift of exactly 0**, then
+correctly refused and re-froze when the custody set was emptied, then went clean again once it was
+restored. Both directions, not just the happy one. It still freezes in steady state for a narrower
+reason: the service credential lives 600 seconds and the job runs every 900, so it authenticates
+once at bootstrap and never again — and that freeze is byte-identical to "the chain could not be
+observed", which is the same indistinguishability problem the loop exists to solve. The service
+shouts at boot rather than letting it be discovered by noticing an absence. Correct behaviour;
+not finished behaviour.
 
 **Nothing is serving the public yet, and almost nothing is deployed.** Services run composed
 against real databases, and the estate's event bus delivers across them — the first cross-service
