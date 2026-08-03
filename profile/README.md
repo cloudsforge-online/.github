@@ -137,20 +137,20 @@ something they are given.
 
 | Service | Owns |
 | --- | --- |
-| `micro-identity` | Accounts, credentials, MFA, sessions, devices, SSO exchange, JWKS, orgs, consents |
-| `micro-ledger` | Chart of accounts, journal, postings, balances projection, reservations, reconciliation |
-| `micro-wallet` | Wallet registry, external links, deposit addresses, withdrawals, conversions, portfolio |
-| `micro-custody` | HD seeds, key generation, encryption envelope, signing policy, treasury pins, export |
-| `micro-settlement` | Treasuries, sweeps, outbound transactions, broadcast, confirmation tracking |
-| `micro-pricing` | Market sources, median oracle, administered prices, rate history, valuation |
+| [`micro-identity`](https://github.com/cloudsforge-online/micro-identity) | Accounts, credentials, MFA, sessions, devices, SSO exchange, JWKS, orgs, consents |
+| [`micro-ledger`](https://github.com/cloudsforge-online/micro-ledger) | Chart of accounts, journal, postings, balances projection, reservations, reconciliation |
+| [`micro-wallet`](https://github.com/cloudsforge-online/micro-wallet) | Wallet registry, external links, deposit addresses, withdrawals, conversions, portfolio |
+| [`micro-custody`](https://github.com/cloudsforge-online/micro-custody) | HD seeds, key generation, encryption envelope, signing policy, treasury pins, export |
+| [`micro-settlement`](https://github.com/cloudsforge-online/micro-settlement) | Treasuries, sweeps, outbound transactions, broadcast, confirmation tracking |
+| [`micro-pricing`](https://github.com/cloudsforge-online/micro-pricing) | Market sources, median oracle, administered prices, rate history, valuation |
 | `micro-billing` | Products, prices, entitlements, subscriptions, usage, invoices, payouts, revenue share |
-| `micro-policy` | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals, freezes |
-| `micro-indexer` | Blocks, transactions, receipts, logs, balances, transfers, reorgs, provider health |
+| [`micro-policy`](https://github.com/cloudsforge-online/micro-policy) | Rules, limits, velocity counters, trusted addresses, cooling-off, approvals, freezes |
+| [`micro-indexer`](https://github.com/cloudsforge-online/micro-indexer) | Blocks, transactions, receipts, logs, balances, transfers, reorgs, provider health |
 | `micro-activity` | Canonical activity records, event inbox, feed cursors, feed query API |
-| `micro-notify` | Preferences, templates, notifications, deliveries, digests, webhooks, broadcasts |
-| `micro-analytics` | Pseudonymised product event store, funnels, cohorts, retention, metric definitions |
+| [`micro-notify`](https://github.com/cloudsforge-online/micro-notify) | Preferences, templates, notifications, deliveries, digests, webhooks, broadcasts |
+| [`micro-analytics`](https://github.com/cloudsforge-online/micro-analytics) | Pseudonymised product event store, funnels, cohorts, retention, metric definitions |
 
-`micro-analytics` never stores a raw subject. A pseudonym is salted per person and the salt is the
+[`micro-analytics`](https://github.com/cloudsforge-online/micro-analytics) never stores a raw subject. A pseudonym is salted per person and the salt is the
 only thing erasure destroys — a plain `HMAC(user_id, pepper)` would be a pure function of two values
 that both survive, so it could not be erased at all.
 
@@ -159,75 +159,75 @@ that both survive, so it could not be erased at all.
 | Sold as | Service | Owns |
 | --- | --- | --- |
 | Forge Network | `hearth` | The chain itself: node, mining, RPC, contracts, SDK |
-| Forge Create | `micro-mint` | Token orders, deployment lifecycle, token registry, token pages, contract templates. Real OpenZeppelin contracts, testnet by default |
-| Forge Trade | `micro-trade` | Strategy catalogue, backtests, bots, fills, allocations, fee settlement, performance. **Free until it makes money** — the only charge is a share of a live bot's gains above a high-water mark. Not an exchange |
-| Forge Market | `micro-market` | Listings, offers, auctions, orders, escrow refs, collections, moderation, disputes. The escrow is a **ledger reservation**, not a balance anyone holds |
-| Forge Foresight | `micro-foresight` | Prediction markets: registry and lifecycle, idea pipeline, contract deployment, positions, resolution, fees. Settled **on the chain** — `ForesightMarket.sol` takes stakes from `msg.sender` with no allowlist and pays claims to `msg.sender`, so a position is readable and claimable with the platform switched off |
-| Forge Worlds | `micro-worlds` | Title registry, player profile, inventory, achievements, seasons, entitlement bridge. A platform, not a game |
-| Forge Hub | `micro-hub-api` | The control centre you land on after signing in. It sells nothing |
+| Forge Create | [`micro-mint`](https://github.com/cloudsforge-online/micro-mint) | Token orders, deployment lifecycle, token registry, token pages, contract templates. Real OpenZeppelin contracts, testnet by default |
+| Forge Trade | [`micro-trade`](https://github.com/cloudsforge-online/micro-trade) | Strategy catalogue, backtests, bots, fills, allocations, fee settlement, performance. **Free until it makes money** — the only charge is a share of a live bot's gains above a high-water mark. Not an exchange |
+| Forge Market | [`micro-market`](https://github.com/cloudsforge-online/micro-market) | Listings, offers, auctions, orders, escrow refs, collections, moderation, disputes. The escrow is a **ledger reservation**, not a balance anyone holds |
+| Forge Foresight | [`micro-foresight`](https://github.com/cloudsforge-online/micro-foresight) | Prediction markets: registry and lifecycle, idea pipeline, contract deployment, positions, resolution, fees. Settled **on the chain** — `ForesightMarket.sol` takes stakes from `msg.sender` with no allowlist and pays claims to `msg.sender`, so a position is readable and claimable with the platform switched off |
+| Forge Worlds | [`micro-worlds`](https://github.com/cloudsforge-online/micro-worlds) | Title registry, player profile, inventory, achievements, seasons, entitlement bridge. A platform, not a game |
+| Forge Hub | [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | The control centre you land on after signing in. It sells nothing |
 | — | `micro-community` | Communities, roles, treasury accounts, proposals, votes, delegations, timelocks |
-| — | `micro-studio` | Brand kits, asset specs, generation jobs, generated assets, generation credits |
+| — | [`micro-studio`](https://github.com/cloudsforge-online/micro-studio) | Brand kits, asset specs, generation jobs, generated assets, generation credits |
 
 ### The four game titles
 
 | Service | Owns |
 | --- | --- |
-| `micro-nda` | *Ninety Days After*: worlds, tiles, players, resolution engine, communes, objectives |
-| `micro-emberkin` | *Kindred*: authoritative saves, campaign, party, catches, Resonance, battle engine |
+| [`micro-nda`](https://github.com/cloudsforge-online/micro-nda) | *Ninety Days After*: worlds, tiles, players, resolution engine, communes, objectives |
+| [`micro-emberkin`](https://github.com/cloudsforge-online/micro-emberkin) | *Kindred*: authoritative saves, campaign, party, catches, Resonance, battle engine |
 | `micro-aetherholm` | World state, cities, economy, fleets, battles, seasons, the chronicle, the title contract |
-| `micro-tessera` | Wards, parcels, claims, objects, placements, the Kiln, presence, the title contract, authorship anchoring |
+| [`micro-tessera`](https://github.com/cloudsforge-online/micro-tessera) | Wards, parcels, claims, objects, placements, the Kiln, presence, the title contract, authorship anchoring |
 
 ### Aggregators and the developer surface
 
 | Service | Owns |
 | --- | --- |
-| `micro-hub-api` | Forge Hub BFF: dashboard aggregation, portfolio composition, search, saved views |
+| [`micro-hub-api`](https://github.com/cloudsforge-online/micro-hub-api) | Forge Hub BFF: dashboard aggregation, portfolio composition, search, saved views |
 | `micro-admin-api` | Operator BFF: cross-service actions, approvals, audit mirror, flags, broadcasts |
-| `micro-devplatform` | Developer orgs, projects, API keys, OAuth clients, webhooks, quotas, directory |
+| [`micro-devplatform`](https://github.com/cloudsforge-online/micro-devplatform) | Developer orgs, projects, API keys, OAuth clients, webhooks, quotas, directory |
 
 ### Operations
 
 | Service | Owns |
 | --- | --- |
-| `micro-lantern` | Log triage: OTLP push ingest, fingerprinting, browser errors and RUM |
+| [`micro-lantern`](https://github.com/cloudsforge-online/micro-lantern) | Log triage: OTLP push ingest, fingerprinting, browser errors and RUM |
 | `micro-beacon` | Synthetic monitoring, journeys, incidents, SLOs. **The release gate** |
-| `micro-faucet` | Testnet EMBER faucet |
+| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | Testnet EMBER faucet |
 | `micro-conformance` | The characterisation corpus, and the estate-wide sweeps run against every repository |
 
 ### The sixteen frontends
 
 | Frontend | Serves |
 | --- | --- |
-| `micro-hub-web` | Forge Hub: dashboard, portfolio, wallet, activity, settings, security, entitlements |
-| `micro-site` | Marketing site |
+| [`micro-hub-web`](https://github.com/cloudsforge-online/micro-hub-web) | Forge Hub: dashboard, portfolio, wallet, activity, settings, security, entitlements |
+| [`micro-site`](https://github.com/cloudsforge-online/micro-site) | Marketing site |
 | `micro-admin-web` | Operator console |
-| `micro-mint-web` | Forge Create |
-| `micro-trade-web` | Forge Trade |
-| `micro-market-web` | Forge Market |
-| `micro-worlds-web` | Forge Worlds client |
-| `micro-foresight-web` | Browse, market detail with cited sources, stake, portfolio, claim |
-| `micro-foresight-admin-web` | Operator panel: idea queue, open/close/resolve/void, disputes |
-| `micro-emberkin-web` | The Kindred Three.js client, on estate conventions, with the generated art |
+| [`micro-mint-web`](https://github.com/cloudsforge-online/micro-mint-web) | Forge Create |
+| [`micro-trade-web`](https://github.com/cloudsforge-online/micro-trade-web) | Forge Trade |
+| [`micro-market-web`](https://github.com/cloudsforge-online/micro-market-web) | Forge Market |
+| [`micro-worlds-web`](https://github.com/cloudsforge-online/micro-worlds-web) | Forge Worlds client |
+| [`micro-foresight-web`](https://github.com/cloudsforge-online/micro-foresight-web) | Browse, market detail with cited sources, stake, portfolio, claim |
+| [`micro-foresight-admin-web`](https://github.com/cloudsforge-online/micro-foresight-admin-web) | Operator panel: idea queue, open/close/resolve/void, disputes |
+| [`micro-emberkin-web`](https://github.com/cloudsforge-online/micro-emberkin-web) | The Kindred Three.js client, on estate conventions, with the generated art |
 | `micro-aetherholm-web` | Archipelago map, city view, fleet control, battle reports, chronicle browser |
-| `micro-tessera-web` | Isometric renderer, build and place tools, the Kiln, the ward map, Workshop pages |
-| `micro-explorer-web` | Block explorer |
-| `micro-network-site` | Forge Network marketing |
-| `micro-devportal-web` | Developer console and docs |
-| `micro-status-web` | Public status page, from Beacon's redacted projection |
+| [`micro-tessera-web`](https://github.com/cloudsforge-online/micro-tessera-web) | Isometric renderer, build and place tools, the Kiln, the ward map, Workshop pages |
+| [`micro-explorer-web`](https://github.com/cloudsforge-online/micro-explorer-web) | Block explorer |
+| [`micro-network-site`](https://github.com/cloudsforge-online/micro-network-site) | Forge Network marketing |
+| [`micro-devportal-web`](https://github.com/cloudsforge-online/micro-devportal-web) | Developer console and docs |
+| [`micro-status-web`](https://github.com/cloudsforge-online/micro-status-web) | Public status page, from Beacon's redacted projection |
 
 ### Shared code and machinery
 
 | Repository | Owns |
 | --- | --- |
-| `micro-contracts` | Typed contracts per bounded context — auth, money, chain, market, worlds, create, events, devplatform |
-| `micro-runtime` | Telemetry, HTTP, jobs, auth, database, lifecycle and policy-client packages |
-| `micro-ui` | Design system, tokens, chrome, the surface registry and the validated chart layer |
-| `micro-sdk` | The public SDK and CLI, generated from the public OpenAPI description |
-| `micro-org` | Shared CI, the repository registry, and the four estate-wide invariants |
-| `micro-deploy` | Compose, Kubernetes manifests, gateway configuration, telemetry stack, release manifests |
-| `micro-docs` | The engineering log |
-| `micro-brand`, `micro-emberkin-assets`, `micro-aetherholm-assets`, `micro-tessera-assets` | Generated art and its provenance |
-| `micro-service-template`, `micro-web-template` | What `cfctl new` produces |
+| [`micro-contracts`](https://github.com/cloudsforge-online/micro-contracts) | Typed contracts per bounded context — auth, money, chain, market, worlds, create, events, devplatform |
+| [`micro-runtime`](https://github.com/cloudsforge-online/micro-runtime) | Telemetry, HTTP, jobs, auth, database, lifecycle and policy-client packages |
+| [`micro-ui`](https://github.com/cloudsforge-online/micro-ui) | Design system, tokens, chrome, the surface registry and the validated chart layer |
+| [`micro-sdk`](https://github.com/cloudsforge-online/micro-sdk) | The public SDK and CLI, generated from the public OpenAPI description |
+| [`micro-org`](https://github.com/cloudsforge-online/micro-org) | Shared CI, the repository registry, and the four estate-wide invariants |
+| [`micro-deploy`](https://github.com/cloudsforge-online/micro-deploy) | Compose, Kubernetes manifests, gateway configuration, telemetry stack, release manifests |
+| [`micro-docs`](https://github.com/cloudsforge-online/micro-docs) | The engineering log |
+| [`micro-brand`](https://github.com/cloudsforge-online/micro-brand), [`micro-emberkin-assets`](https://github.com/cloudsforge-online/micro-emberkin-assets), [`micro-aetherholm-assets`](https://github.com/cloudsforge-online/micro-aetherholm-assets), [`micro-tessera-assets`](https://github.com/cloudsforge-online/micro-tessera-assets) | Generated art and its provenance |
+| [`micro-service-template`](https://github.com/cloudsforge-online/micro-service-template), [`micro-web-template`](https://github.com/cloudsforge-online/micro-web-template) | What `cfctl new` produces |
 
 ---
 
@@ -251,10 +251,10 @@ prompt that produced it, the model, the delivered dimensions and the cost.
 
 | | |
 | --- | --- |
-| `micro-brand` | 98 |
-| `micro-emberkin-assets` | 137 |
-| `micro-aetherholm-assets` | 101 |
-| `micro-tessera-assets` | 392 — of which 104 are derived rather than generated |
+| [`micro-brand`](https://github.com/cloudsforge-online/micro-brand) | 98 |
+| [`micro-emberkin-assets`](https://github.com/cloudsforge-online/micro-emberkin-assets) | 137 |
+| [`micro-aetherholm-assets`](https://github.com/cloudsforge-online/micro-aetherholm-assets) | 101 |
+| [`micro-tessera-assets`](https://github.com/cloudsforge-online/micro-tessera-assets) | 392 — of which 104 are derived rather than generated |
 
 A second full set of **741 images** was generated with **Qwen-Image 2512** to compare against it.
 Those live under `candidates/` in each repository and never ship, so the reference stays
