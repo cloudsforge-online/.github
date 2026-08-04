@@ -12,8 +12,8 @@ Everything below is measured, not estimated. Where something does not work, it s
 
 | | |
 | --- | --- |
-| Repositories, public | **61** |
-| Repositories, archived read-only and private | 9 pre-migration predecessors, each naming its successors |
+| Repositories, public | **67** |
+| Repositories, archived read-only and private | 10 pre-migration predecessors, each naming its successors |
 | Services that bind a port | **30**, plus a service template that never deploys |
 | Frontends | **16** |
 | TypeScript / TSX files | **1,927** |
@@ -24,7 +24,9 @@ Everything below is measured, not estimated. Where something does not work, it s
 | Engineering documents | **27** |
 | Browser scenarios specified | **314** |
 
-Counted on 2026-08-03 from the working tree, excluding `node_modules` and build output.
+Repository counts re-checked on 2026-08-05 against the organisation itself; the code figures were
+counted on 2026-08-03 from the working tree, excluding `node_modules` and build output. The two
+repository rows were previously 61 and 9 and had drifted.
 
 ---
 
@@ -47,8 +49,18 @@ Counted on 2026-08-03 from the working tree, excluding `node_modules` and build 
 Because it is EVM-compatible, ordinary Ethereum tooling works against it, and a seed phrase derived
 at `m/44'/60'` restores in wallets nobody here wrote.
 
-**A testnet is running now.** Chain ID 7412, a CPU miner producing blocks, currently past block
-**1,065**. It is not a public network and EMBER has no price.
+**Mainnet is live and mining.** Chain ID **7411**, CPU-mined, reachable at
+`https://rpc.cloudsforge.online`. It is **past block 190** — the genesis is hours old, so "live"
+here means *reachable*, not *established*. Observed block spacing on a chain this young is well
+above the 15-second target while difficulty settles.
+
+**EMBER has no monetary value.** No market, no listing, no liquidity, no price. The chain becoming
+reachable does not change that, and nothing on this page should be read as suggesting otherwise.
+
+A testnet also runs — chain ID **7412** — but it is **not publicly reachable**. Cloudflare's
+Universal SSL covers `*.cloudsforge.online`, which matches `testnet.cloudsforge.online` but not
+`hub.testnet.cloudsforge.online`; a two-label wildcard needs a paid certificate the estate does not
+have, so the testnet subdomains fail the TLS handshake at Cloudflare's edge.
 
 ---
 
@@ -67,6 +79,37 @@ had been failing in under fifteen seconds with no steps executed, on a billing b
 estate public restored unlimited Actions, and within the hour CI had caught a cross-repository
 contract drift, a documentation gap, a container image job that had never once run for any service,
 and a flaky test that was hiding a real defect in an erasure path.
+
+---
+
+## Where it is running
+
+Public as of 2026-08-05, served from a single home server behind a Cloudflare Tunnel. There is no
+redundancy, no failover, and no backup that has ever been restored.
+
+| | |
+| --- | --- |
+| [cloudsforge.online](https://cloudsforge.online) | The marketing site |
+| [hub.cloudsforge.online](https://hub.cloudsforge.online) | Forge Hub |
+| [network.cloudsforge.online](https://network.cloudsforge.online) | Forge Network |
+| [explorer.cloudsforge.online](https://explorer.cloudsforge.online) | Block explorer |
+| [market.cloudsforge.online](https://market.cloudsforge.online) | Forge Market |
+| [create.cloudsforge.online](https://create.cloudsforge.online) | Forge Create |
+| [trade.cloudsforge.online](https://trade.cloudsforge.online) | Forge Trade |
+| [foresight.cloudsforge.online](https://foresight.cloudsforge.online) | Forge Foresight |
+| [worlds.cloudsforge.online](https://worlds.cloudsforge.online) | Forge Worlds |
+| [tessera.cloudsforge.online](https://tessera.cloudsforge.online) | Tessera |
+| [emberkin.cloudsforge.online](https://emberkin.cloudsforge.online) | Kindred |
+| [aetherholm.cloudsforge.online](https://aetherholm.cloudsforge.online) | Aetherholm |
+| [status.cloudsforge.online](https://status.cloudsforge.online) | Public status page |
+| [developers.cloudsforge.online](https://developers.cloudsforge.online) | Developer console and docs |
+| `rpc.cloudsforge.online` | Hearth JSON-RPC, chain 7411 — POST only, a GET returns 405 |
+
+Every one of those was fetched over the public internet on the day this was written. Three operator
+consoles — admin, beacon and lantern — also answer and are not for public use.
+
+**Two configured hostnames do not work**, and are listed here rather than omitted:
+`api.cloudsforge.online` returns 502, and `worlds-api.cloudsforge.online` has no DNS record.
 
 ---
 
@@ -113,10 +156,17 @@ Honest status of the claim that this is one platform rather than six products wi
 | One identity — same profile everywhere | partial | one user row; no profile beyond a handle |
 | Assets made in one product usable in others | partial | the entitlement bridge exists; consumption is starting |
 | The same money earns everywhere, not just spends | partial | **two** surfaces credit a seller today, not one |
-| A third party can build on all of it | partial | the platform and SDK exist; nothing is publicly serving |
+| A third party can build on all of it | partial | the platform and SDK exist, and the surfaces are now publicly reachable; the public API host is answering 502 today, so nothing can yet be built against it |
 
-**Nothing is serving the public.** Services run composed against real databases and the event bus
-delivers across them. Where a product page says a capability is in build, it means exactly that.
+**The estate is now serving the public**, and the qualifications matter as much as the fact.
+**23 mainnet hostnames answer** over the public internet on a publicly trusted certificate — Google
+Trust Services, via Cloudflare. Fourteen product and marketing surfaces return 200, three operator
+consoles return 200, and the JSON-RPC endpoint serves the chain.
+
+What that does **not** mean: `api.cloudsforge.online` currently returns **502**, and
+`worlds-api.cloudsforge.online` has no DNS record at all. It all runs on **one home server** behind
+a Cloudflare Tunnel — no redundancy, no failover, and no backup that has ever been restored. It is
+reachable, it is a day old, and it has had no load that was not ours.
 
 **Money in flight is being unified.** Shards, an internal unit, are being removed in favour of EMBER
 denominated in **Sparks** — one Spark is 10⁻⁶ EMBER, a display denomination and deliberately never a
@@ -300,4 +350,5 @@ been tested.
 ---
 
 Nothing here promises a return. Backtests describe the past. Mining yields depend on difficulty. A
-parimutuel payout depends on the pool at settlement. A coin with no mainnet has no price.
+parimutuel payout depends on the pool at settlement. **EMBER has no market, no listing and no
+price** — a mainnet that answers is not a market, and mining a coin nobody buys pays nothing.
