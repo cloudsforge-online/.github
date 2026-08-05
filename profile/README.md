@@ -21,12 +21,13 @@ Everything below is measured, not estimated. Where something does not work, it s
 | Test files (`node:test`, no other runner) | **642** |
 | Distinct database tables | **221** |
 | HTTP route declarations | **604** |
-| Engineering documents | **27** |
+| Engineering documents | **30** |
 | Browser scenarios specified | **314** |
 
-Repository counts re-checked on 2026-08-05 against the organisation itself; the code figures were
-counted on 2026-08-03 from the working tree, excluding `node_modules` and build output. The two
-repository rows were previously 61 and 9 and had drifted.
+Repository counts re-checked on 2026-08-05 against the organisation itself, and the document count
+recounted the same day; the code figures were counted on 2026-08-03 from the working tree, excluding
+`node_modules` and build output. The two repository rows were previously 61 and 9 and had drifted,
+and the document row said 27 when `micro-docs/ecosystem/` holds 30 numbered documents.
 
 ---
 
@@ -49,18 +50,45 @@ repository rows were previously 61 and 9 and had drifted.
 Because it is EVM-compatible, ordinary Ethereum tooling works against it, and a seed phrase derived
 at `m/44'/60'` restores in wallets nobody here wrote.
 
-**Mainnet is live and mining.** Chain ID **7411**, CPU-mined, reachable at
-`https://rpc.cloudsforge.online`. It is **past block 190** — the genesis is hours old, so "live"
-here means *reachable*, not *established*. Observed block spacing on a chain this young is well
-above the 15-second target while difficulty settles.
+### Two networks, and how to tell them apart
 
-**EMBER has no monetary value.** No market, no listing, no liquidity, no price. The chain becoming
-reachable does not change that, and nothing on this page should be read as suggesting otherwise.
+Both are public as of 2026-08-05. Everything in this section was measured over the public internet
+on that date.
 
-A testnet also runs — chain ID **7412** — but it is **not publicly reachable**. Cloudflare's
-Universal SSL covers `*.cloudsforge.online`, which matches `testnet.cloudsforge.online` but not
-`hub.testnet.cloudsforge.online`; a two-label wildcard needs a paid certificate the estate does not
-have, so the testnet subdomains fail the TLS handshake at Cloudflare's edge.
+| | Mainnet | Testnet |
+| --- | --- | --- |
+| Chain ID | **7411** (`0x1cf3`) | **7412** (`0x1cf4`) |
+| JSON-RPC | `https://rpc.cloudsforge.online` | `https://rpc-testnet.cloudsforge.online` |
+| Peer-to-peer | `wss://p2p.cloudsforge.online/p2p` | `wss://p2p-testnet.cloudsforge.online/p2p` |
+| Surfaces | `<surface>.cloudsforge.online` | `<surface>-testnet.cloudsforge.online` |
+| Coins come from | mining only | the faucet, free |
+| If it is lost | it is gone | it did not matter |
+
+Each RPC was asked `eth_chainId` over the public internet and answered its own chain — `0x1cf3` and
+`0x1cf4`. The two IDs are deliberately different: if both networks declared 7411, every testnet
+transaction would be replayable on mainnet under EIP-155. Mainnet was past **block 1,140** at that
+measurement — the genesis is a day old, so "live" here means *reachable*, not *established*, and
+observed block spacing on a chain this young runs well above the 15-second target while difficulty
+settles. The RPC hosts are **POST only**; a `GET` returns 405.
+
+**The environment is a suffix on the first label, never a second label.**
+`hub-testnet.cloudsforge.online` is the testnet Hub. **`hub.testnet.cloudsforge.online` is not an
+address here** — it never resolved and any document still showing that form is out of date.
+Cloudflare's Universal SSL covers a single-label wildcard only, so every two-label testnet hostname
+failed the TLS handshake at the edge; the naming scheme was changed rather than a paid certificate
+bought. The one exception is the testnet front page itself, `testnet.cloudsforge.online`, where
+there is no subdomain to suffix and the label stands alone.
+
+**What each network is for, stated so the two cannot be confused.** Mainnet is the real chain: its
+balances are permanent, its coins are mined and never given away, and it is not reset. **Testnet
+exists to be thrown away.** Its EMBER is handed out free by the testnet faucet at
+[network-testnet.cloudsforge.online/faucet](https://network-testnet.cloudsforge.online/faucet), it is
+worthless by construction, and the chain may be restarted from genesis without notice. Nothing sent
+to a `-testnet` address should ever be something anyone minds losing.
+
+**EMBER has no monetary value on either network.** No market, no listing, no liquidity, no price.
+Mainnet becoming reachable does not change that, and nothing on this page should be read as
+suggesting otherwise. Testnet EMBER is worthless on purpose; mainnet EMBER is worthless so far.
 
 ---
 
@@ -87,29 +115,43 @@ and a flaky test that was hiding a real defect in an erasure path.
 Public as of 2026-08-05, served from a single home server behind a Cloudflare Tunnel. There is no
 redundancy, no failover, and no backup that has ever been restored.
 
-| | |
-| --- | --- |
-| [cloudsforge.online](https://cloudsforge.online) | The marketing site |
-| [hub.cloudsforge.online](https://hub.cloudsforge.online) | Forge Hub |
-| [network.cloudsforge.online](https://network.cloudsforge.online) | Forge Network |
-| [explorer.cloudsforge.online](https://explorer.cloudsforge.online) | Block explorer |
-| [market.cloudsforge.online](https://market.cloudsforge.online) | Forge Market |
-| [create.cloudsforge.online](https://create.cloudsforge.online) | Forge Create |
-| [trade.cloudsforge.online](https://trade.cloudsforge.online) | Forge Trade |
-| [foresight.cloudsforge.online](https://foresight.cloudsforge.online) | Forge Foresight |
-| [worlds.cloudsforge.online](https://worlds.cloudsforge.online) | Forge Worlds |
-| [tessera.cloudsforge.online](https://tessera.cloudsforge.online) | Tessera |
-| [emberkin.cloudsforge.online](https://emberkin.cloudsforge.online) | Kindred |
-| [aetherholm.cloudsforge.online](https://aetherholm.cloudsforge.online) | Aetherholm |
-| [status.cloudsforge.online](https://status.cloudsforge.online) | Public status page |
-| [developers.cloudsforge.online](https://developers.cloudsforge.online) | Developer console and docs |
-| `rpc.cloudsforge.online` | Hearth JSON-RPC, chain 7411 — POST only, a GET returns 405 |
+Every row below was fetched over the public internet on **2026-08-05** and returned 200. That is a
+measurement on a date, not a promise about tomorrow: one home server has no uptime commitment, and
+the live truth is on the [status page](https://status.cloudsforge.online) rather than on this one.
 
-Every one of those was fetched over the public internet on the day this was written. Three operator
-consoles — admin, beacon and lantern — also answer and are not for public use.
+| Surface | Mainnet | Testnet |
+| --- | --- | --- |
+| The marketing site | [cloudsforge.online](https://cloudsforge.online) | [testnet.cloudsforge.online](https://testnet.cloudsforge.online) |
+| Forge Hub | [hub.](https://hub.cloudsforge.online) | [hub-testnet.](https://hub-testnet.cloudsforge.online) |
+| Forge Network, and the faucet | [network.](https://network.cloudsforge.online) | [network-testnet.](https://network-testnet.cloudsforge.online) |
+| Block explorer | [explorer.](https://explorer.cloudsforge.online) | [explorer-testnet.](https://explorer-testnet.cloudsforge.online) |
+| Forge Market | [market.](https://market.cloudsforge.online) | [market-testnet.](https://market-testnet.cloudsforge.online) |
+| Forge Create | [create.](https://create.cloudsforge.online) | [create-testnet.](https://create-testnet.cloudsforge.online) |
+| Forge Trade | [trade.](https://trade.cloudsforge.online) | [trade-testnet.](https://trade-testnet.cloudsforge.online) |
+| Forge Foresight | [foresight.](https://foresight.cloudsforge.online) | [foresight-testnet.](https://foresight-testnet.cloudsforge.online) |
+| Forge Worlds | [worlds.](https://worlds.cloudsforge.online) | [worlds-testnet.](https://worlds-testnet.cloudsforge.online) |
+| Tessera | [tessera.](https://tessera.cloudsforge.online) | [tessera-testnet.](https://tessera-testnet.cloudsforge.online) |
+| Kindred | [emberkin.](https://emberkin.cloudsforge.online) | [emberkin-testnet.](https://emberkin-testnet.cloudsforge.online) |
+| Aetherholm | [aetherholm.](https://aetherholm.cloudsforge.online) | [aetherholm-testnet.](https://aetherholm-testnet.cloudsforge.online) |
+| Public status page | [status.](https://status.cloudsforge.online) | [status-testnet.](https://status-testnet.cloudsforge.online) |
+| Developer console and docs | [developers.](https://developers.cloudsforge.online) | [developers-testnet.](https://developers-testnet.cloudsforge.online) |
+| Hearth JSON-RPC | `rpc.` — chain **7411** | `rpc-testnet.` — chain **7412** |
 
-**Two configured hostnames do not work**, and are listed here rather than omitted:
-`api.cloudsforge.online` returns 502, and `worlds-api.cloudsforge.online` has no DNS record.
+Suffix every abbreviated cell with `cloudsforge.online`. Three operator consoles — `admin`, `beacon`
+and `lantern` — answer on both networks and are not for public use, which is why they are not linked
+here. That is **16 UI surfaces plus the apex on each network, all 200 on 2026-08-05**.
+
+**Six hostnames deliberately serve no page**, and are listed so nobody reports the 404 as a fault:
+`nimbus` (single sign-on and token issuance), `pay` (billing and wallet), `vault` (custody),
+`account`, `api` and `worlds-api`. They are APIs. `servesUi: false` in the surface registry is the
+field that says so, and each answers `/livez` while returning 404 at `/` — `nimbus`, `pay` and
+`vault` were confirmed doing exactly that on both networks.
+
+**What does not work, listed rather than omitted.** `api.cloudsforge.online` returns **502** — a
+known open defect, tracked as issue #35, and until it is fixed nothing external can be built against
+the public API. `www.cloudsforge.online` does not resolve at all. `worlds-api.cloudsforge.online` has
+no DNS record and is **not a defect**: the game API was consolidated into `api.`, and the hostname is
+retired rather than broken.
 
 ---
 
@@ -156,17 +198,19 @@ Honest status of the claim that this is one platform rather than six products wi
 | One identity — same profile everywhere | partial | one user row; no profile beyond a handle |
 | Assets made in one product usable in others | partial | the entitlement bridge exists; consumption is starting |
 | The same money earns everywhere, not just spends | partial | **two** surfaces credit a seller today, not one |
-| A third party can build on all of it | partial | the platform and SDK exist, and the surfaces are now publicly reachable; the public API host is answering 502 today, so nothing can yet be built against it |
+| A third party can build on all of it | partial | the platform and SDK exist, and the surfaces are now publicly reachable on both networks; `api.cloudsforge.online` was still answering 502 on 2026-08-05 (issue #35), so nothing can yet be built against it |
 
-**The estate is now serving the public**, and the qualifications matter as much as the fact.
-**23 mainnet hostnames answer** over the public internet on a publicly trusted certificate — Google
-Trust Services, via Cloudflare. Fourteen product and marketing surfaces return 200, three operator
-consoles return 200, and the JSON-RPC endpoint serves the chain.
+**The estate is now serving the public on both networks**, and the qualifications matter as much as
+the fact. Measured 2026-08-05, over the public internet, on a publicly trusted certificate — Google
+Trust Services, via Cloudflare: **all 16 UI surfaces plus the apex return 200 on mainnet, and all 16
+plus `testnet.cloudsforge.online` return 200 on testnet.** Both JSON-RPC endpoints serve their own
+chain. `nimbus`, `pay` and `vault` answer `/livez` on both.
 
-What that does **not** mean: `api.cloudsforge.online` currently returns **502**, and
-`worlds-api.cloudsforge.online` has no DNS record at all. It all runs on **one home server** behind
-a Cloudflare Tunnel — no redundancy, no failover, and no backup that has ever been restored. It is
-reachable, it is a day old, and it has had no load that was not ours.
+What that does **not** mean: `api.cloudsforge.online` currently returns **502** (issue #35), so the
+public API host is the one thing a third party would reach for and the one thing that is down. It
+all runs on **one home server** behind a Cloudflare Tunnel — no redundancy, no failover, and no
+backup that has ever been restored. It is reachable, it is a day old, and it has had no load that
+was not ours.
 
 **Money in flight is being unified.** Shards, an internal unit, are being removed in favour of EMBER
 denominated in **Sparks** — one Spark is 10⁻⁶ EMBER, a display denomination and deliberately never a
@@ -241,7 +285,7 @@ that both survive, so it could not be erased at all.
 | --- | --- |
 | [`micro-lantern`](https://github.com/cloudsforge-online/micro-lantern) | Log triage: OTLP push ingest, fingerprinting, browser errors and RUM |
 | `micro-beacon` | Synthetic monitoring, journeys, incidents, SLOs. **The release gate** |
-| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | Testnet EMBER faucet |
+| [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The **testnet** EMBER faucet, and only the testnet one. It is a page on the Network site rather than a host of its own — [network-testnet.cloudsforge.online/faucet](https://network-testnet.cloudsforge.online/faucet). Nothing gives away mainnet EMBER |
 | `micro-conformance` | The characterisation corpus, and the estate-wide sweeps run against every repository |
 
 ### The sixteen frontends
@@ -338,7 +382,7 @@ been tested.
 
 ## Where to start
 
-- **[micro-docs](https://github.com/cloudsforge-online/micro-docs)** — 27 documents: architecture
+- **[micro-docs](https://github.com/cloudsforge-online/micro-docs)** — 30 documents: architecture
   and security decisions, the domain model, the testing strategy, and a build ledger that records
   what is actually true rather than what was planned, including defects found on the way and the
   ones deliberately left open.
