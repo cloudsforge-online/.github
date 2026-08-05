@@ -147,11 +147,14 @@ here. That is **16 UI surfaces plus the apex on each network, all 200 on 2026-08
 field that says so, and each answers `/livez` while returning 404 at `/` — `nimbus`, `pay` and
 `vault` were confirmed doing exactly that on both networks.
 
-**What does not work, listed rather than omitted.** `api.cloudsforge.online` returns **502** — a
-known open defect, tracked as issue #35, and until it is fixed nothing external can be built against
-the public API. `www.cloudsforge.online` does not resolve at all. `worlds-api.cloudsforge.online` has
-no DNS record and is **not a defect**: the game API was consolidated into `api.`, and the hostname is
-retired rather than broken.
+**The public API is up.** `api.cloudsforge.online` serves on both networks, answering `404
+text/plain` on an unmatched path. It spent part of 2026-08-05 returning 502 — a `cf-api-catchall`
+router pointing at `http://127.0.0.1:1`, a gateway backend fault rather than a tunnel or DNS one —
+and that is fixed.
+
+**What still does not work, listed rather than omitted.** `www.cloudsforge.online` does not resolve
+at all. `worlds-api.cloudsforge.online` has no DNS record and is **not a defect**: the game API was
+consolidated into `api.`, and the hostname is retired rather than broken.
 
 ---
 
@@ -198,7 +201,7 @@ Honest status of the claim that this is one platform rather than six products wi
 | One identity — same profile everywhere | partial | one user row; no profile beyond a handle |
 | Assets made in one product usable in others | partial | the entitlement bridge exists; consumption is starting |
 | The same money earns everywhere, not just spends | partial | **two** surfaces credit a seller today, not one |
-| A third party can build on all of it | partial | the platform and SDK exist, and the surfaces are now publicly reachable on both networks; `api.cloudsforge.online` was still answering 502 on 2026-08-05 (issue #35), so nothing can yet be built against it |
+| A third party can build on all of it | partial | the platform and SDK exist, the surfaces are publicly reachable on both networks, and `api.cloudsforge.online` now serves after a 502 was fixed on 2026-08-05. Partial because nobody outside the project has built anything against it yet |
 
 **The estate is now serving the public on both networks**, and the qualifications matter as much as
 the fact. Measured 2026-08-05, over the public internet, on a publicly trusted certificate — Google
@@ -206,11 +209,9 @@ Trust Services, via Cloudflare: **all 16 UI surfaces plus the apex return 200 on
 plus `testnet.cloudsforge.online` return 200 on testnet.** Both JSON-RPC endpoints serve their own
 chain. `nimbus`, `pay` and `vault` answer `/livez` on both.
 
-What that does **not** mean: `api.cloudsforge.online` currently returns **502** (issue #35), so the
-public API host is the one thing a third party would reach for and the one thing that is down. It
-all runs on **one home server** behind a Cloudflare Tunnel — no redundancy, no failover, and no
-backup that has ever been restored. It is reachable, it is a day old, and it has had no load that
-was not ours.
+What that does **not** mean: it all runs on **one home server** behind a Cloudflare Tunnel — no
+redundancy, no failover, and no backup that has ever been restored. It is reachable, it is a day
+old, and it has had no load that was not ours.
 
 **Money in flight is being unified.** Shards, an internal unit, are being removed in favour of EMBER
 denominated in **Sparks** — one Spark is 10⁻⁶ EMBER, a display denomination and deliberately never a
