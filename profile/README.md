@@ -12,22 +12,47 @@ Everything below is measured, not estimated. Where something does not work, it s
 
 | | |
 | --- | --- |
-| Repositories, public | **67** |
+| Repositories, public | **69** |
 | Repositories, archived read-only and private | 10 pre-migration predecessors, each naming its successors |
-| Services that bind a port | **30**, plus a service template that never deploys |
-| Frontends | **16** |
-| TypeScript / TSX files | **1,927** |
-| Lines of TypeScript | **556,610** |
-| Test files (`node:test`, no other runner) | **642** |
-| Distinct database tables | **221** |
-| HTTP route declarations | **604** |
-| Engineering documents | **30** |
-| Browser scenarios specified | **314** |
+| Services that bind a port | **30** — 27 services and 3 ops, plus a service template that never deploys |
+| Frontends | **18** |
+| TypeScript / TSX files | **2,557** |
+| Lines of TypeScript, blank lines excluded | **779,982** |
+| — of which code | **542,243** |
+| — of which comment | **237,739** |
+| Test files (`node:test`, no other runner) | **927** |
+| Distinct database tables | **254** |
+| HTTP route declarations | **520** |
+| Engineering documents | **39** |
+| Browser scenarios specified | **388** |
 
-Repository counts re-checked on 2026-08-05 against the organisation itself, and the document count
-recounted the same day; the code figures were counted on 2026-08-03 from the working tree, excluding
-`node_modules` and build output. The two repository rows were previously 61 and 9 and had drifted,
-and the document row said 27 when `micro-docs/ecosystem/` holds 30 numbered documents.
+Counted on **2026-08-12** by [`org/tools/count-estate.sh`](https://github.com/cloudsforge-online/micro-org/blob/main/tools/count-estate.sh),
+which is new and is the point of this revision. Every figure above used to be counted by hand, and
+the note this paragraph replaces recorded what that cost: two repository rows had drifted from 61
+and 9, and the document row said 27 against 30 documents on disk — three of eleven figures wrong,
+found by accident.
+
+A hand count also cannot be compared with itself. The previous "556,610 lines of TypeScript" does
+not say whether it counted blank lines, comments, `.tsx`, or `dist/`, so this table cannot honestly
+claim the difference is all growth. From here it can: the method is now the artifact and the
+numbers fall out of it.
+
+**The method, stated so it can be disagreed with.** Blank lines are excluded — 61,050 of them —
+because a blank line is formatting, not work. Comments are counted **separately** rather than
+folded into the headline or discarded: 237,739 comment lines against 542,243 of code is a real
+property of this codebase and the wrong thing to either hide or quietly add to a total. `dist`,
+`build`, `coverage` and `node_modules` are excluded, because vendored and generated code is not
+work this organisation did. Repository counts come from the organisation over the API, never from
+a checkout, and the script refuses to publish code figures at all if the disk is missing a public
+repository — in that case every line below it would be an undercount. `tokei` produces the
+published figures and `cloc` runs beside it as an independent cross-check; they currently agree
+within 4.6%, and a gap beyond 10% means one of them has started mis-parsing something.
+
+**Two figures deserve their caveats.** *HTTP route declarations* fell from 604 to 520, which is
+almost certainly a change of method rather than a shrinking API: the old number's definition was
+not recorded, and the new one counts route objects — `{ method: 'GET', path: … }` — in non-test
+TypeScript. It is reproducible from today, and not comparable backwards. *Lines* rose steeply for
+the same reason, plus 630 new files.
 
 ---
 
