@@ -85,7 +85,7 @@ on that date.
 | Chain ID | **7411** (`0x1cf3`) | **7412** (`0x1cf4`) |
 | JSON-RPC | `https://rpc.cloudsforge.online` | `https://rpc-testnet.cloudsforge.online` |
 | Peer-to-peer | `wss://p2p.cloudsforge.online/p2p` | `wss://p2p-testnet.cloudsforge.online/p2p` |
-| Surfaces | `<surface>.cloudsforge.online` | `<surface>-testnet.cloudsforge.online` |
+| Surfaces | `<surface>.cloudsforge.online` — **both networks**, via the in-app switcher | `<surface>-testnet.cloudsforge.online` answers **302** to the mainnet sibling; its `/v1` API still answers |
 | Coins come from | mining only | the faucet, free |
 | If it is lost | it is gone | it did not matter |
 
@@ -137,12 +137,23 @@ and a flaky test that was hiding a real defect in an erasure path.
 
 ## Where it is running
 
-Public as of 2026-08-05, served from a single home server behind a Cloudflare Tunnel. There is no
-redundancy, no failover, and no backup that has ever been restored.
+Public as of 2026-08-05, served from home hardware behind a Cloudflare Tunnel — since 2026-08-09
+**two machines**, not one: an app host running every container of both estates, and a chain host
+running the external chain daemons and a second EMBER miner, linked by WireGuard. The
+architecture section below draws it. There is still no redundancy and no failover; a backup
+runner now ships state off the app host on a schedule, but **no restore has ever been
+rehearsed**, and a backup that has never been restored is a hope, not a backup.
 
 Every row below was fetched over the public internet on **2026-08-05** and returned 200. That is a
 measurement on a date, not a promise about tomorrow: one home server has no uptime commitment, and
 the live truth is on the [status page](https://status.cloudsforge.online) rather than on this one.
+
+**Revised 2026-08-14 — the combined view.** The testnet links below now answer **302** to their
+mainnet sibling (measured over the public internet on 2026-08-14: `hub-testnet.` → `hub.`,
+`testnet.` → the apex, both 302; `explorer-testnet.…/v1` still 200). One set of pages serves both
+networks through the switcher; the testnet column is kept because the hostnames still work — they
+carry old links to the right place, and their APIs are load-bearing. The architecture section
+above draws the whole arrangement.
 
 | Surface | Mainnet | Testnet |
 | --- | --- | --- |
@@ -177,9 +188,10 @@ text/plain` on an unmatched path. It spent part of 2026-08-05 returning 502 — 
 router pointing at `http://127.0.0.1:1`, a gateway backend fault rather than a tunnel or DNS one —
 and that is fixed.
 
-**What still does not work, listed rather than omitted.** `www.cloudsforge.online` does not resolve
-at all. `worlds-api.cloudsforge.online` has no DNS record and is **not a defect**: the game API was
-consolidated into `api.`, and the hostname is retired rather than broken.
+**What still does not work, listed rather than omitted.** `worlds-api.cloudsforge.online` has no
+DNS record and is **not a defect**: the game API was consolidated into `api.`, and the hostname is
+retired rather than broken. (`www.cloudsforge.online`, which this paragraph used to report as not
+resolving at all, answers **301** to the apex — measured 2026-08-14.)
 
 ---
 
@@ -210,6 +222,216 @@ check.
 
 ---
 
+## The architecture, drawn
+
+Revised **2026-08-14**, at release **2026.08.38**, and drawn from that release's manifest — 48
+images, every one listed below, none omitted. The big change it records: **the combined view**. As
+of 2026-08-14 there is ONE set of frontends, on the mainnet hostnames, serving BOTH networks
+through an in-app **Mainnet | Testnet** switcher. The `-testnet` page hostnames answer **302** to
+their mainnet sibling with the path intact; their `/v1` APIs still answer, because the combined
+view's cross-network reads depend on them. Testnet survives as a data plane — chain, money tier,
+APIs — with its frontends, its identity and its synthetic monitor retired: stopped, not deleted,
+and the redirects are temporary-code, so the whole thing can be rolled back
+(`micro-deploy/runbooks/runbook-combined-view-rollback.md`).
+
+### One estate of pages, two networks
+
+```mermaid
+flowchart TD
+    B[Browser] --> CF[Cloudflare edge]
+    CF -->|tunnel| GWM["Mainnet gateway (Traefik)"]
+    CF -->|tunnel| GWT["Testnet gateway (Traefik)"]
+
+    subgraph M["Mainnet estate — every page, both networks"]
+        GWM --> FE["18 frontend bundles"]
+        GWM --> API["Mainnet APIs, /v1"]
+        GWM --> NIM["nimbus — THE identity, one login for both networks"]
+    end
+
+    subgraph T["Testnet estate — data plane only"]
+        GWT -- "pages: 302 to the mainnet sibling, same path" --> R[retired frontends]
+        GWT -- "/v1 still answers" --> TAPI["Testnet APIs, /v1"]
+    end
+
+    FE -. "switcher viewing testnet:<br/>same page, cross-estate /v1 reads" .-> GWT
+```
+
+The switcher is **in-memory, per tab, never persisted** — the viewed network defaults to the
+hostname's own and is always on screen, with testnet data under the amber band. That rule has scar
+tissue behind it (`explorer-web/src/lib/network.ts`) and a test that fails if anyone stores it.
+
+### One identity, and why sharing it is safe
+
+One account signs in once and reads both networks; a **service** must never cross. The asymmetry
+is the design, and it is carried by the `net` claim:
+
+```mermaid
+sequenceDiagram
+    participant U as Browser
+    participant N as nimbus (identity)
+    participant M as a mainnet service
+    participant T as a testnet service
+    U->>N: one login
+    N-->>U: user token — deliberately NO net claim
+    U->>M: /v1 read, bearer
+    M-->>U: 200
+    U->>T: same bearer, switcher viewing testnet
+    T-->>U: 200 — a person crosses by design
+    Note over N,T: services are the opposite: estate-pinned
+    T->>N: exchange credential (its row says network=testnet)
+    N-->>T: service token, net=testnet
+    T->>M: that token at a MAINNET service
+    M-->>T: 401 wrong_network — a service never crosses
+```
+
+Every service verifies against the same JWKS and is armed with its own estate's name
+(`AUTH_EXPECTED_NETWORK`); the estate a credential mints for is a **column on the credential row**,
+read the way the service name is — a caller can name neither its own service nor its own estate.
+
+### Every service — the 30 that bind a port
+
+Drawn by tier. Every arrow is a real, load-bearing call path; the tiers otherwise talk through
+events (outbox → signed HTTP → inbox), not through each other's databases.
+
+```mermaid
+flowchart LR
+    subgraph SPINE["Money & identity — the spine"]
+        identity
+        ledger
+        wallet
+        custody
+        settlement
+        pricing
+        billing
+        policy
+        indexer
+        activity
+        notify
+        analytics
+    end
+    subgraph CHAIN["Chain & mining"]
+        hearth["hearth — the chain, mainnet & testnet nodes"]
+        pool["pool — Stratum v1, LTC+DOGE AuxPoW"]
+    end
+    subgraph PRODUCTS["Products"]
+        hub-api
+        mint
+        trade
+        market
+        foresight
+        worlds
+        community
+        studio
+    end
+    subgraph GAMES["Game titles"]
+        nda
+        emberkin
+        aetherholm
+        tessera
+    end
+    subgraph OPS["Operator, developer, operations"]
+        admin-api
+        devplatform
+        beacon
+        lantern
+        faucet
+    end
+
+    wallet --> ledger
+    wallet --> custody
+    settlement --> custody
+    settlement --> ledger
+    pool --> ledger
+    indexer --> hearth
+    indexer --> wallet
+    faucet --> wallet
+    hub-api --> wallet
+    hub-api --> activity
+    PRODUCTS --> ledger
+    GAMES --> ledger
+    admin-api --> notify
+    beacon -. "synthetic journeys, the release gate" .-> SPINE
+```
+
+Two machines carry it. The **app host** runs everything above in containers (Windows, inside WSL —
+Linux containers need a Linux kernel). The **chain host** runs the external chain daemons —
+`bitcoind`, `litecoind`, `dogecoind` — as host processes, reached over a WireGuard link; both hosts
+mine EMBER. A standalone **stratum-endpoint** watcher observes the public IP and republishes the
+pool's stratum address when it moves.
+
+```mermaid
+flowchart LR
+    subgraph APP["App host — 192.168.1.129, WSL"]
+        EST["both estates, all containers"]
+        MINER1["EMBER miner"]
+        SE["stratum-endpoint watcher"]
+    end
+    subgraph CH["Chain host — 192.168.1.42"]
+        BTC[bitcoind]
+        LTC[litecoind]
+        DOGE[dogecoind]
+        MINER2["EMBER miner"]
+    end
+    EST -- WireGuard --> BTC
+    EST -- WireGuard --> LTC
+    EST -- WireGuard --> DOGE
+    INET[Internet] -- "Cloudflare tunnel" --> EST
+    INET -- "stratum tcp/3333-3334" --> EST
+```
+
+### Every frontend — the 18 that ship
+
+Each bundle is static files behind the gateway; `/v1` on the same hostname goes to the API that
+serves it. All of them carry the network switcher; the three with in-app network context —
+explorer, hub, the network site — swap their **data** in place.
+
+```mermaid
+flowchart LR
+    subgraph FE["Frontends"]
+        site["site — the marketing apex"]
+        hub-web
+        explorer-web
+        network-site
+        market-web
+        mint-web
+        trade-web
+        foresight-web
+        worlds-web
+        tessera-web
+        emberkin-web
+        aetherholm-web
+        devportal-web
+        status-web
+        pool-web
+        admin-web
+        beacon-web
+        lantern-web
+    end
+    hub-web --> hub-api
+    explorer-web --> indexer
+    network-site --> indexer
+    pool-web --> pool
+    status-web --> beacon
+    admin-web --> admin-api
+    beacon-web --> beacon
+    lantern-web --> lantern
+    devportal-web --> devplatform
+    market-web --> market
+    mint-web --> mint
+    trade-web --> trade
+    foresight-web --> foresight
+    worlds-web --> worlds
+    tessera-web --> tessera
+    emberkin-web --> emberkin
+    aetherholm-web --> aetherholm
+```
+
+That is 18, not the 16 an earlier revision of this page listed: `beacon-web`, `lantern-web` and
+`pool-web` ship and were missing, and `micro-foresight-admin-web` is archived and does not — its
+panel's job moved into the operator console. 30 services + 18 frontends = the manifest's 48.
+
+---
+
 ## What is true today, and what is not
 
 Honest status of the claim that this is one platform rather than six products with a shared logo.
@@ -234,9 +456,9 @@ Trust Services, via Cloudflare: **all 16 UI surfaces plus the apex return 200 on
 plus `testnet.cloudsforge.online` return 200 on testnet.** Both JSON-RPC endpoints serve their own
 chain. `nimbus`, `pay` and `vault` answer `/livez` on both.
 
-What that does **not** mean: it all runs on **one home server** behind a Cloudflare Tunnel — no
-redundancy, no failover, and no backup that has ever been restored. It is reachable, it is a day
-old, and it has had no load that was not ours.
+What that does **not** mean: it all runs on **two home machines** behind one Cloudflare Tunnel —
+no redundancy, no failover, and no backup restore ever rehearsed. It is reachable, and it has had
+no load that was not ours.
 
 **Money in flight is being unified.** Shards, an internal unit, are being removed in favour of EMBER
 denominated in **Sparks** — one Spark is 10⁻⁶ EMBER, a display denomination and deliberately never a
@@ -279,6 +501,7 @@ that both survive, so it could not be erased at all.
 | Sold as | Service | Owns |
 | --- | --- | --- |
 | Forge Network | `hearth` | The chain itself: node, mining, RPC, contracts, SDK |
+| — | [`micro-pool`](https://github.com/cloudsforge-online/micro-pool) | The mining pool: Stratum v1, jobs, shares, workers, payouts through the ledger, LTC+DOGE AuxPoW merge-mining |
 | Forge Create | [`micro-mint`](https://github.com/cloudsforge-online/micro-mint) | Token orders, deployment lifecycle, token registry, token pages, contract templates. Real OpenZeppelin contracts, testnet by default |
 | Forge Trade | [`micro-trade`](https://github.com/cloudsforge-online/micro-trade) | Strategy catalogue, backtests, bots, fills, allocations, fee settlement, performance. **Free until it makes money** — the only charge is a share of a live bot's gains above a high-water mark. Not an exchange |
 | Forge Market | [`micro-market`](https://github.com/cloudsforge-online/micro-market) | Listings, offers, auctions, orders, escrow refs, collections, moderation, disputes. The escrow is a **ledger reservation**, not a balance anyone holds |
@@ -314,7 +537,11 @@ that both survive, so it could not be erased at all.
 | [`micro-faucet`](https://github.com/cloudsforge-online/micro-faucet) | The **testnet** EMBER faucet, and only the testnet one. It is a page on the Network site rather than a host of its own — [network-testnet.cloudsforge.online/faucet](https://network-testnet.cloudsforge.online/faucet). Nothing gives away mainnet EMBER |
 | `micro-conformance` | The characterisation corpus, and the estate-wide sweeps run against every repository |
 
-### The sixteen frontends
+### The eighteen frontends
+
+Eighteen is the release manifest's own count, and it corrects this section twice: `beacon-web`,
+`lantern-web` and `pool-web` ship and were missing from the sixteen listed before, and
+`micro-foresight-admin-web` was listed while being archived — it does not deploy.
 
 | Frontend | Serves |
 | --- | --- |
@@ -326,14 +553,16 @@ that both survive, so it could not be erased at all.
 | [`micro-market-web`](https://github.com/cloudsforge-online/micro-market-web) | Forge Market |
 | [`micro-worlds-web`](https://github.com/cloudsforge-online/micro-worlds-web) | Forge Worlds client |
 | [`micro-foresight-web`](https://github.com/cloudsforge-online/micro-foresight-web) | Browse, market detail with cited sources, stake, portfolio, claim |
-| [`micro-foresight-admin-web`](https://github.com/cloudsforge-online/micro-foresight-admin-web) | Operator panel: idea queue, open/close/resolve/void, disputes |
 | [`micro-emberkin-web`](https://github.com/cloudsforge-online/micro-emberkin-web) | The Kindred Three.js client, on estate conventions, with the generated art |
 | `micro-aetherholm-web` | Archipelago map, city view, fleet control, battle reports, chronicle browser |
 | [`micro-tessera-web`](https://github.com/cloudsforge-online/micro-tessera-web) | Isometric renderer, build and place tools, the Kiln, the ward map, Workshop pages |
 | [`micro-explorer-web`](https://github.com/cloudsforge-online/micro-explorer-web) | Block explorer |
-| [`micro-network-site`](https://github.com/cloudsforge-online/micro-network-site) | Forge Network marketing |
+| [`micro-network-site`](https://github.com/cloudsforge-online/micro-network-site) | Forge Network marketing, and the testnet faucet page |
 | [`micro-devportal-web`](https://github.com/cloudsforge-online/micro-devportal-web) | Developer console and docs |
 | [`micro-status-web`](https://github.com/cloudsforge-online/micro-status-web) | Public status page, from Beacon's redacted projection |
+| [`micro-pool-web`](https://github.com/cloudsforge-online/micro-pool-web) | The mining pool: workers, shares, payouts, stratum endpoints |
+| `micro-beacon-web` | Operator view of the synthetic monitor: journeys, incidents, SLOs |
+| `micro-lantern-web` | Operator view of log triage: fingerprints, browser errors, RUM |
 
 ### Shared code and machinery
 
