@@ -119,8 +119,12 @@ suggesting otherwise. Testnet EMBER is worthless on purpose; mainnet EMBER is wo
 
 ## What is running
 
-**41 containers**, composed against real Postgres — one database per service, no shared schema, no
-service reading another's tables. The estate boots from one command and includes the chain.
+**90 containers** across the two estates, counted from `docker ps` on 2026-08-14: 49 mainnet
+(29 services, 18 frontends, gateway, postgres), 29 testnet (27 data-plane services, gateway,
+postgres — its frontends, identity and monitor are retired under the combined view), 6
+observability, 6 auxiliary. Composed against real Postgres — one database per service, no shared
+schema, no service reading another's tables. The estate boots from one command and includes the
+chain.
 
 **Continuous integration: 58 green, 1 red.** Every repository runs the same reusable workflow:
 typecheck, its own suite against a real Postgres, the estate rules, a container that must boot and
@@ -430,6 +434,84 @@ That is 18, not the 16 an earlier revision of this page listed: `beacon-web`, `l
 `pool-web` ship and were missing, and `micro-foresight-admin-web` is archived and does not — its
 panel's job moved into the operator console. 30 services + 18 frontends = the manifest's 48.
 
+### Everything running, in one picture
+
+Every container and daemon actually running, taken from `docker ps` on both machines on
+**2026-08-14** at release 2026.08.38 — not from the compose file, so what is retired is drawn as
+retired. Mainnet runs 29 of the 30 services (the faucet is testnet-only by design) and all 18
+frontends; testnet runs 27 services as a pure data plane (no pool — testnet mines EMBER only) with
+its identity, its monitor and its web bundles stopped.
+
+```mermaid
+flowchart TB
+    INET(("Internet")) --> EDGE["Cloudflare edge · one tunnel"]
+
+    subgraph APP["App host (WSL) — every container"]
+      subgraph MAIN["Mainnet estate — 29 services · 18 frontends"]
+        GW["gateway (Traefik)"]
+        subgraph MFE["Frontends"]
+          site & hub-web & explorer-web & network-site & market-web & mint-web
+          trade-web & foresight-web & worlds-web & tessera-web & emberkin-web & aetherholm-web
+          devportal-web & status-web & pool-web & admin-web & beacon-web & lantern-web
+        end
+        subgraph MSVC["Services"]
+          identity & ledger & wallet & custody & settlement & pricing
+          billing & policy & indexer & activity & notify & analytics
+          pool & hub-api & admin-api & devplatform & mint & trade
+          market & foresight & worlds & community & studio & nda
+          emberkin & aetherholm & tessera & beacon & lantern
+        end
+        MPG[("postgres — one database per service")]
+      end
+      subgraph TEST["Testnet estate — the data plane, 27 services"]
+        TGW["gateway (Traefik)"]
+        subgraph TSVC["Services"]
+          t_activity["activity"] & t_admin_api["admin-api"] & t_aetherholm["aetherholm"] & t_analytics["analytics"] & t_billing["billing"] & t_community["community"]
+          t_custody["custody"] & t_devplatform["devplatform"] & t_emberkin["emberkin"] & t_faucet["faucet"] & t_foresight["foresight"] & t_hub_api["hub-api"]
+          t_indexer["indexer"] & t_lantern["lantern"] & t_ledger["ledger"] & t_market["market"] & t_mint["mint"] & t_nda["nda"]
+          t_notify["notify"] & t_policy["policy"] & t_pricing["pricing"] & t_settlement["settlement"] & t_studio["studio"] & t_tessera["tessera"]
+          t_trade["trade"] & t_wallet["wallet"] & t_worlds["worlds"]
+        end
+        RET["retired — stopped, not deleted:<br/>identity · beacon · the 18 web bundles"]:::retired
+        TPG[("postgres")]
+      end
+      subgraph OBS["Observability"]
+        prometheus & grafana & loki & tempo & alertmanager & otel-collector
+      end
+      subgraph AUX["Auxiliary"]
+        wg["cf-wg — WireGuard"] & stratum-endpoint & miner_app["EMBER miner"] & backup-runner & conformance-runner & freqtrade["freqtrade — trade's bot engine"]
+      end
+    end
+
+    subgraph CH["Chain host — daemons, not containers"]
+      hearth_m["hearth node — mainnet 7411"] & hearth_t["hearth node — testnet 7412"] & miner_ch["EMBER miner"]
+      bitcoind & litecoind & dogecoind
+    end
+
+    EDGE --> GW
+    EDGE --> TGW
+    GW --> MFE
+    GW --> MSVC
+    TGW -- "/v1 APIs" --> TSVC
+    TGW -. "pages: 302 to the mainnet sibling" .-> MFE
+    MSVC --> MPG
+    TSVC --> TPG
+    TSVC -- "exchange, one identity" --> identity
+    OBS -. scrapes both estates .-> MSVC
+    stratum-endpoint --> pool
+    miner_app --> hearth_m
+    miner_ch --> hearth_m
+    wg === CH
+    prometheus --> alertmanager
+
+    classDef retired stroke-dasharray: 5 5,opacity:0.7;
+```
+
+Reading it against the tiers above: the spine, products, games and operations all appear here
+flattened into their estates, because at runtime the tier is an idea and the container is the
+fact. The one cross-estate arrow that matters is drawn: every testnet service exchanges its
+credential at the mainnet identity, and nothing else crosses.
+
 ---
 
 ## What is true today, and what is not
@@ -438,7 +520,8 @@ Honest status of the claim that this is one platform rather than six products wi
 
 | | | |
 | --- | --- | --- |
-| One account signs into everything, once | **works** | |
+| One account signs into everything, once | **works** | and since 2026-08-14, across both **networks**: the same bearer answered `/v1/portfolio` 200 at hub and at hub-testnet, measured at the flip |
+| One set of pages serves both networks | **works** | the combined view: testnet pages 302 to the mainnet sibling, the in-app switcher swaps the data, testnet `/v1` stays alive underneath |
 | One wallet, whichever product you came from | **works** | one wallet service, one set of screens |
 | One portfolio — a single number for what you hold | **works** | composed by `hub-api` |
 | One activity history across money, assets and play | **works** | `activity` owns the canonical record |
@@ -447,14 +530,15 @@ Honest status of the claim that this is one platform rather than six products wi
 | One ledger that reconciles against the chain | **works, with a caveat** | driven clean against the live testnet at drift **exactly 0**, and proven to refuse and re-freeze when custody was emptied. The four tests that prove it end-to-end need two checkouts, so CI does not run them |
 | One identity — same profile everywhere | partial | one user row; no profile beyond a handle |
 | Assets made in one product usable in others | partial | the entitlement bridge exists; consumption is starting |
-| The same money earns everywhere, not just spends | partial | **two** surfaces credit a seller today, not one |
+| The same money earns everywhere, not just spends | partial, and less partial than it was | market sales credit sellers, a trade bot's gains stay the user's, and the mining pool posts payouts through the ledger — with the LTC payout policy recorded and its mainnet treasury step deliberately sequenced (micro-org#302) |
 | A third party can build on all of it | partial | the platform and SDK exist, the surfaces are publicly reachable on both networks, and `api.cloudsforge.online` now serves after a 502 was fixed on 2026-08-05. Partial because nobody outside the project has built anything against it yet |
 
-**The estate is now serving the public on both networks**, and the qualifications matter as much as
-the fact. Measured 2026-08-05, over the public internet, on a publicly trusted certificate — Google
-Trust Services, via Cloudflare: **all 16 UI surfaces plus the apex return 200 on mainnet, and all 16
-plus `testnet.cloudsforge.online` return 200 on testnet.** Both JSON-RPC endpoints serve their own
-chain. `nimbus`, `pay` and `vault` answer `/livez` on both.
+**The estate is now serving the public on both networks**, and the qualifications matter as much
+as the fact. Re-measured **2026-08-14**, over the public internet, on a publicly trusted
+certificate: **all 16 UI surfaces plus the apex return 200 on mainnet.** The testnet hostnames
+answer **302** to their mainnet siblings — that is the combined view working, not testnet down —
+and testnet's `/v1` APIs answer 200 underneath. Both JSON-RPC endpoints serve their own chain, and
+`www` answers 301 to the apex.
 
 What that does **not** mean: it all runs on **two home machines** behind one Cloudflare Tunnel —
 no redundancy, no failover, and no backup restore ever rehearsed. It is reachable, and it has had
